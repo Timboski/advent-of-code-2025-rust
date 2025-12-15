@@ -35,6 +35,7 @@ fn main() -> io::Result<()> {
     // Output all positions
     println!("Positions: {:?}", dial.history);
     println!("Number of zero values: {}", dial.zero_count);
+    println!("Number of zero crossings: {}", dial.zero_crossings);
 
     Ok(())
 }
@@ -44,6 +45,7 @@ struct Dial {
     position: i32,
     history: Vec<i32>,
     zero_count: i32,
+    zero_crossings: i32,
 }
 
 impl Dial {
@@ -53,14 +55,17 @@ impl Dial {
             position: 50,
             history: vec![50],
             zero_count: 0,
+            zero_crossings: 0,
         }
     }
 
     fn turn_left(&mut self, clicks: i32) {
+        self.zero_crossings += (clicks + 100 - self.position) / 100;
         self.turn(-clicks);
     }
 
     fn turn_right(&mut self, clicks: i32) {
+        self.zero_crossings += (clicks + self.position) / 100;
         self.turn(clicks);
     }
 
