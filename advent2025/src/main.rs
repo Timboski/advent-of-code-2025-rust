@@ -4,17 +4,14 @@ use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 
 fn main() -> io::Result<()> {
-    // Get file path from command-line arguments
-    // let path = env::args().nth(1).expect("Usage: cargo run -- <file_path>");
-
-    let path = "/workspaces/advent-of-code-2025-rust/day1-input.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day1-example.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day1-input.txt";
 
     // Open the file
     let file = File::open(&path)?;
     let reader = BufReader::new(file);
 
-    let mut position: i32 = 50;
-    let mut positions: Vec<i32> = Vec::new();
+    let mut dial = Dial::new();
 
     for line_result in reader.lines() {
         let line = line_result?;
@@ -26,25 +23,62 @@ fn main() -> io::Result<()> {
 
         // First character determines direction
         let (direction, value_str) = trimmed.split_at(1);
-        let value: i32 = value_str.trim().parse().expect("Invalid number");
+        let clicks: i32 = value_str.trim().parse().expect("Invalid number");
 
         match direction {
-            "L" => position -= value,
-            "R" => position += value,
+            "L" => dial.turn_left(clicks),
+            "R" => dial.turn_right(clicks),
             _ => panic!("Invalid line format: {}", trimmed),
         }
-
-        // Apply modulo 100 (ensure positive result)
-        position = ((position % 100) + 100) % 100;
-
-        positions.push(position);
     }
 
     // Output all positions
-    println!("Positions: {:?}", positions);
-    
-    let zero_count = positions.iter().filter(|&&x| x == 0).count();
-    println!("Number of zero values: {}", zero_count);
+    println!("Positions: {:?}", dial.history);
+    println!("Number of zero values: {}", dial.zero_count);
 
     Ok(())
+}
+
+
+struct Dial {
+    position: i32,
+    history: Vec<i32>,
+    zero_count: i32,
+}
+
+impl Dial {
+    /// Creates a new Dial with position initialized to 50.
+    fn new() -> Self {
+        Self {
+            position: 50,
+            history: vec![50],
+            zero_count: 0,
+        }
+    }
+
+    fn turn_left(&mut self, clicks: i32) {
+        self.position = (self.position - clicks).rem_euclid(100);
+        self.history.push(self.position);
+        if self.position == 0 {
+            self.zero_count += 1;
+        }
+
+    }
+
+    fn turn_right(&mut self, clicks: i32) {
+        self.position = (self.position + clicks).rem_euclid(100);
+        self.history.push(self.position);
+        if self.position == 0 {
+            self.zero_count += 1;
+        }
+    }
+
+    fn position(&self) -> i32 {
+        self.position
+    }
+
+    fn history(&self) -> &[i32] {
+        &self.history
+    }
+
 }
