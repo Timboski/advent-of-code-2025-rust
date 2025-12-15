@@ -57,28 +57,18 @@ impl Dial {
     }
 
     fn turn_left(&mut self, clicks: i32) {
+        self.turn(-clicks);
+    }
+
+    fn turn_right(&mut self, clicks: i32) {
+        self.turn(clicks);
+    }
+
+    fn turn(&mut self, clicks: i32) {
         self.position = (self.position - clicks).rem_euclid(100);
         self.history.push(self.position);
         if self.position == 0 {
             self.zero_count += 1;
         }
-
     }
-
-    fn turn_right(&mut self, clicks: i32) {
-        self.position = (self.position + clicks).rem_euclid(100);
-        self.history.push(self.position);
-        if self.position == 0 {
-            self.zero_count += 1;
-        }
-    }
-
-    fn position(&self) -> i32 {
-        self.position
-    }
-
-    fn history(&self) -> &[i32] {
-        &self.history
-    }
-
 }
