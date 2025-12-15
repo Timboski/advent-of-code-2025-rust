@@ -7,7 +7,7 @@ fn main() -> io::Result<()> {
     // Get file path from command-line arguments
     // let path = env::args().nth(1).expect("Usage: cargo run -- <file_path>");
 
-    let path = "/workspaces/advent-of-code-2025-rust/day1-example.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day1-input.txt";
 
     // Open the file
     let file = File::open(&path)?;
