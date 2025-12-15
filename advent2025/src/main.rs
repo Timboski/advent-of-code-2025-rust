@@ -4,8 +4,8 @@ use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 
 fn main() -> io::Result<()> {
-    let path = "/workspaces/advent-of-code-2025-rust/day1-example.txt";
-    // let path = "/workspaces/advent-of-code-2025-rust/day1-input.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day1-example.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day1-input.txt";
 
     // Open the file
     let file = File::open(&path)?;
