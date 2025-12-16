@@ -1,7 +1,15 @@
 use rstest::rstest;
 
 pub fn main() {
-    let ranges = read_tuple_line("/workspaces/advent-of-code-2025-rust/day2-example.txt").unwrap();
+    let path = "/workspaces/advent-of-code-2025-rust/day2-example.txt";
+
+    let sum = find_password(path);
+
+    println!("Password: {}", sum);
+}
+
+fn find_password(path: &str) -> u128 {
+    let ranges = read_tuple_line(path).unwrap();
 
     let mut sum: u128 = 0;
     for range in ranges {
@@ -11,7 +19,7 @@ pub fn main() {
         sum += total;
     }
 
-    println!("Password: {}", sum);
+    sum
 }
 
 fn find_invalid_ids(range_start: u128, range_end: u128) -> Vec<u128> {
@@ -229,4 +237,16 @@ fn test_examples_for_part_1(
 
     // Assert
     assert_eq!(invalid_ids, expected_ids)
+}
+
+#[test]
+fn check_part1_example() {
+    // Arrange
+    let path = "/workspaces/advent-of-code-2025-rust/day2-example.txt";
+
+    // Act
+    let password = find_password(path);
+
+    // Assert
+    assert_eq!(password, 1227775554);
 }
