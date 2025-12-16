@@ -146,45 +146,30 @@ impl std::error::Error for ParseTuplesError {
 }
 
 
-
-/// Returns the larger half after:
-/// 1) Rounding `n` up to the next integer with an even number of decimal digits.
-/// 2) Splitting its decimal string into two equal halves.
-///
-/// Assumes `n >= 1`.
-pub fn find_first_invalid_id_sequence(n: u128) -> u128 {
-    let s = n.to_string();
+pub fn find_first_invalid_id_sequence(range_start: u128) -> u128 {
+    let s = range_start.to_string();
     let digits = s.len();
-
-    // If odd number of digits, round up to the smallest number with even digits:
-    // This is 10^digits (e.g., 9 -> 10, 999 -> 1000).
-    let m = if digits % 2 == 1 {
-        // 10^digits fits in u128 as long as digits <= 38
-        // (u128 max is 38 decimal digits). For larger inputs, this will panic.
-        pow10_u128(digits as u32)
+    
+    let first_sequence: u128 = if digits % 2 == 1 {
+        // Odd number of digits. Round up to the smallest number with even digits (and chop in half)
+        // This is the same as 1 followed by a zero for each of half the original number of digits (rounded down).
+        let zeros_count = digits / 2;
+        let even_start = format!("1{}", "0".repeat(zeros_count));
+        even_start.parse::<u128>().unwrap()
     } else {
-        n
+        // Just grab the first half of the digits using string manipulation.
+        let start_as_string = range_start.to_string();
+        let half_size = start_as_string.len() / 2;
+        let left_half = &start_as_string[..half_size];
+        left_half.parse::<u128>().unwrap()
     };
 
-    // Now split into two halves and compare numerically.
-    let ms = m.to_string();
-    let half = ms.len() / 2;
-    let left = &ms[..half];
-    let right = &ms[half..];
+    // If the range_start is not an invalid id, the duplicated sequence will be below the range.
+    // Incrementing by one will bring it into (or over) the range.
+    if duplicate_block(first_sequence) < range_start { return first_sequence + 1; }
 
-    let left_num = left.parse::<u128>().expect("left half must be numeric");
-    let right_num = right.parse::<u128>().expect("right half must be numeric");
-
-    left_num.max(right_num)
-}
-
-/// Integer power: 10^exp for u128.
-fn pow10_u128(exp: u32) -> u128 {
-    let mut acc: u128 = 1;
-    for _ in 0..exp {
-        acc *= 10;
-    }
-    acc
+    // The range start is an invalid id, so ensure this is included.
+    return first_sequence;
 }
 
 fn duplicate_block(n: u128) -> u128 {
@@ -263,4 +248,5 @@ fn check_part1_input() {
     // Assert
     println!("Password: {}", password);
     assert!(password > 19717846043); // First guess too low
+    assert_eq!(password, 30608905813);
 }
