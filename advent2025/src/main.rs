@@ -130,5 +130,7 @@ fn problem2real_data() {
     dial.perform_rotations(&rotations);
 
     // Assert
-    assert_eq!(dial.zero_crossings, 0)
+    println!("Number of zero crossings: {}", dial.zero_crossings);
+    assert!(dial.zero_crossings < 6315) // First guess was too high
+    //assert_eq!(dial.zero_crossings, 0)
 }
