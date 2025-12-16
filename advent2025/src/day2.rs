@@ -1,4 +1,7 @@
 use rstest::rstest;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+
 
 pub fn main() {
     let path = "/workspaces/advent-of-code-2025-rust/day2-input.txt";
@@ -9,7 +12,7 @@ pub fn main() {
 }
 
 fn find_password(path: &str) -> u128 {
-    let ranges = read_tuple_line(path).unwrap();
+    let ranges = read_ranges_from_file(path);
 
     let mut sum: u128 = 0;
     for range in ranges {
@@ -37,114 +40,29 @@ fn find_invalid_ids(range_start: u128, range_end: u128) -> Vec<u128> {
     invalid_ids
 }
 
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Range {
     pub start: u128,
     pub end: u128,
 }
 
-
-use std::fs::File;
-use std::io::{self, BufRead, BufReader};
-use std::path::Path;
-
-pub fn read_tuple_line<P: AsRef<Path>>(path: P) -> Result<Vec<Range>, ParseTuplesError> {
-    let file = File::open(path.as_ref()).map_err(ParseTuplesError::Io)?;
+pub fn read_ranges_from_file(path: &str) -> Vec<Range> {
+    let file = File::open(path).unwrap();
     let mut reader = BufReader::new(file);
-
     let mut line = String::new();
-    let bytes = reader.read_line(&mut line).map_err(ParseTuplesError::Io)?;
-    if bytes == 0 {
-        return Ok(Vec::new()); // empty file -> empty list
-    }
+    let _ = reader.read_line(&mut line);
 
-    let line = line.trim();
-    if line.is_empty() {
-        return Ok(Vec::new());
-    }
-
-    parse_tuple_list(line)
-}
-
-fn parse_tuple_list(s: &str) -> Result<Vec<Range>, ParseTuplesError> {
     let mut out = Vec::new();
 
-    for (idx, item) in s.split(',').enumerate() {
-        let item = item.trim();
-        if item.is_empty() {
-            continue;
-        }
-
-        let mut parts = item.splitn(2, '-').map(str::trim);
-        let left = parts.next().ok_or_else(|| ParseTuplesError::MalformedItem {
-            item_index: idx,
-            item: item.to_string(),
-            reason: "missing '-'".to_string(),
-        })?;
-        let right = parts.next().ok_or_else(|| ParseTuplesError::MalformedItem {
-            item_index: idx,
-            item: item.to_string(),
-            reason: "missing right side after '-'".to_string(),
-        })?;
-
-        let start = left.parse::<u128>().map_err(|e| ParseTuplesError::ParseNumber {
-            item_index: idx,
-            side: "left",
-            text: left.to_string(),
-            source: e,
-        })?;
-        let end = right.parse::<u128>().map_err(|e| ParseTuplesError::ParseNumber {
-            item_index: idx,
-            side: "right",
-            text: right.to_string(),
-            source: e,
-        })?;
-
+    for range in line.split(',') {
+        let (start, end) = range.split_once('-').unwrap();
         out.push(Range {
-            start,
-            end,
+            start: start.parse::<u128>().unwrap(),
+            end: end.parse::<u128>().unwrap(),
         });
     }
 
-    Ok(out)
+    out
 }
-
-#[derive(Debug)]
-pub enum ParseTuplesError {
-    Io(io::Error),
-    MalformedItem { item_index: usize, item: String, reason: String },
-    ParseNumber {
-        item_index: usize,
-        side: &'static str, // "left" or "right"
-        text: String,
-        source: std::num::ParseIntError,
-    },
-}
-
-impl std::fmt::Display for ParseTuplesError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ParseTuplesError::Io(e) => write!(f, "I/O error: {}", e),
-            ParseTuplesError::MalformedItem { item_index, item, reason } => {
-                write!(f, "Malformed item at index {} ('{}'): {}", item_index, item, reason)
-            }
-            ParseTuplesError::ParseNumber { item_index, side, text, source } => {
-                write!(f, "Failed to parse {} number at item {} ('{}'): {}", side, item_index, text, source)
-            }
-        }
-    }
-}
-impl std::error::Error for ParseTuplesError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-                       ParseTuplesError::Io(e) => Some(e),
-            ParseTuplesError::ParseNumber { source, .. } => Some(source),
-            _ => None,
-        }
-    }
-}
-
 
 pub fn find_first_invalid_id_sequence(range_start: u128) -> u128 {
     let s = range_start.to_string();
