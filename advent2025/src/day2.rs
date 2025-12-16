@@ -4,23 +4,7 @@
 
 
 pub fn main() {
-    // 9 has 1 digit (odd) -> round to 10 (even 2 digits) -> "10" -> halves: "1" and "0" -> max = 1
-    assert_eq!(larger_half_after_even_digits_round(9), 1);
 
-    // 12 has 2 digits (even) -> keep 12 -> "12" -> halves: "1" and "2" -> max = 2
-    assert_eq!(larger_half_after_even_digits_round(12), 2);
-
-    // 999 has 3 digits (odd) -> round to 1000 -> "1000" -> halves: "10" and "00" -> max = 10
-    assert_eq!(larger_half_after_even_digits_round(999), 10);
-
-    // 1234 has 4 digits (even) -> keep -> "1234" -> halves: "12" and "34" -> max = 34
-    assert_eq!(larger_half_after_even_digits_round(1234), 34);
-
-    // 1 -> round to 10 -> halves: "1" and "0" -> 1
-    assert_eq!(larger_half_after_even_digits_round(1), 1);
-
-    // Large even-digit number
-    assert_eq!(larger_half_after_even_digits_round(12345678), 5678);
 }
 
 
@@ -30,7 +14,7 @@ pub fn main() {
 /// 2) Splitting its decimal string into two equal halves.
 ///
 /// Assumes `n >= 1`.
-pub fn larger_half_after_even_digits_round(n: u128) -> u128 {
+pub fn find_first_invalid_id_sequence(n: u128) -> u128 {
     let s = n.to_string();
     let digits = s.len();
 
@@ -63,4 +47,25 @@ fn pow10_u128(exp: u32) -> u128 {
         acc *= 10;
     }
     acc
+}
+
+#[test]
+pub fn test_find_first_invalid_id_sequence() {
+    // 9 has 1 digit (odd) -> round to 10 (even 2 digits) -> "10" -> halves: "1" and "0" -> max = 1
+    assert_eq!(find_first_invalid_id_sequence(9), 1);
+
+    // 12 has 2 digits (even) -> keep 12 -> "12" -> halves: "1" and "2" -> max = 2
+    assert_eq!(find_first_invalid_id_sequence(12), 2);
+
+    // 999 has 3 digits (odd) -> round to 1000 -> "1000" -> halves: "10" and "00" -> max = 10
+    assert_eq!(find_first_invalid_id_sequence(999), 10);
+
+    // 1234 has 4 digits (even) -> keep -> "1234" -> halves: "12" and "34" -> max = 34
+    assert_eq!(find_first_invalid_id_sequence(1234), 34);
+
+    // 1 -> round to 10 -> halves: "1" and "0" -> 1
+    assert_eq!(find_first_invalid_id_sequence(1), 1);
+
+    // Large even-digit number
+    assert_eq!(find_first_invalid_id_sequence(12345678), 5678);
 }
