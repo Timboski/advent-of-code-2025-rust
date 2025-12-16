@@ -1,7 +1,4 @@
-
-// Prompt:
-// using rust take a positive integer and round up to the next integer with an even number of decimal digits, Then take the number as a string and split into two halves. Return the larger of the two numbers.
-
+use rstest::rstest;
 
 pub fn main() {
     let range_start = 11;
@@ -96,4 +93,26 @@ pub fn test_find_first_invalid_id_sequence() {
 
     // Large even-digit number
     assert_eq!(find_first_invalid_id_sequence(12345678), 5678);
+}
+
+#[rstest]
+#[case(11, 22, vec![11,22])]
+#[case(95, 115, vec![99])]
+#[case(998, 1012, vec![1010])]
+#[case(1188511880, 1188511890, vec![1188511885])]
+#[case(222220, 222224, vec![222222])]
+#[case(1698522, 1698528, vec![])]
+#[case(446443, 446449, vec![446446])]
+#[case(38593856, 38593862, vec![38593859])]
+fn test_examples_for_part_1(
+    #[case] start_range: u128,
+    #[case] end_range: u128,
+    #[case] expected_ids: Vec<u128>
+)
+{
+    // Act
+    let invalid_ids = find_invalid_ids(start_range, end_range);
+
+    // Assert
+    assert_eq!(invalid_ids, expected_ids)
 }
