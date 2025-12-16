@@ -226,6 +226,7 @@ pub fn test_find_first_invalid_id_sequence() {
 #[case(1698522, 1698528, vec![])]
 #[case(446443, 446449, vec![446446])]
 #[case(38593856, 38593862, vec![38593859])]
+#[case(69, 86, vec![77])]
 fn test_examples_for_part_1(
     #[case] start_range: u128,
     #[case] end_range: u128,
