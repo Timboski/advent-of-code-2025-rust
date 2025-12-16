@@ -2,6 +2,21 @@ use std::fs;
 use std::io;
 use std::io::BufRead;
 
+#[allow(dead_code)]
+pub fn main() {
+    let path = "/workspaces/advent-of-code-2025-rust/day1-example.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day1-input.txt";
+    let rotations = read_file_lines(path).unwrap();
+    let mut dial = Dial::new();
+
+    dial.perform_rotations(&rotations);
+
+    // Output all positions
+    println!("Positions: {:?}", dial.history);
+    println!("Number of zero values: {}", dial.zero_count);
+    println!("Number of zero crossings: {}", dial.zero_crossings);
+}
+
 
 pub fn read_file_lines(path: &str) -> io::Result<Vec<String>> {
     let file = fs::File::open(path)?;
