@@ -5,7 +5,7 @@ use std::io::{BufRead, BufReader};
 
 
 pub fn main() {
-    let path = "/workspaces/advent-of-code-2025-rust/day2-example.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day2-input.txt";
 
     
     println!("Part 1");
@@ -206,14 +206,17 @@ fn check_part1_input() {
     assert_eq!(password, 30608905813);
 }
 
-#[test]
-fn check_part2_example() {
-    // Arrange
-    let path = "/workspaces/advent-of-code-2025-rust/day2-example.txt";
-
+#[rstest]
+#[case("/workspaces/advent-of-code-2025-rust/day2-example.txt", 4174379265)]
+#[case("/workspaces/advent-of-code-2025-rust/day2-input.txt", 31898925685)]
+fn check_part2_example(
+    #[case] path: &str,
+    #[case] expected_password: u128,
+) 
+{
     // Act
     let password = find_new_password(path);
 
     // Assert
-    assert_eq!(password, 4174379265);
+    assert_eq!(password, expected_password);
 }
