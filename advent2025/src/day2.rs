@@ -3,10 +3,15 @@ use rstest::rstest;
 pub fn main() {
     let ranges = read_tuple_line("/workspaces/advent-of-code-2025-rust/day2-example.txt").unwrap();
 
+    let mut sum: u128 = 0;
     for range in ranges {
         let invalid_ids = find_invalid_ids(range.start, range.end);
-        println!("Start {}, End {}, Invalid IDs: {:?}", range.start, range.end, invalid_ids)
+        println!("Start {}, End {}, Invalid IDs: {:?}", range.start, range.end, invalid_ids);
+        let total: u128 = invalid_ids.iter().sum();
+        sum += total;
     }
+
+    println!("Password: {}", sum);
 }
 
 fn find_invalid_ids(range_start: u128, range_end: u128) -> Vec<u128> {
