@@ -1,44 +1,29 @@
 
 //use std::env;
-use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::fs;
+use std::io;
+use std::io::BufRead;
 
-fn main() -> io::Result<()> {
+fn main() {
     // let path = "/workspaces/advent-of-code-2025-rust/day1-example.txt";
     let path = "/workspaces/advent-of-code-2025-rust/day1-input.txt";
-
-    // Open the file
-    let file = File::open(&path)?;
-    let reader = BufReader::new(file);
-
+    let rotations = read_file_lines(path).unwrap();
     let mut dial = Dial::new();
 
-    for line_result in reader.lines() {
-        let line = line_result?;
-        let trimmed = line.trim();
-
-        if trimmed.is_empty() {
-            continue; // Skip empty lines
-        }
-
-        // First character determines direction
-        let (direction, value_str) = trimmed.split_at(1);
-        let clicks: i32 = value_str.trim().parse().expect("Invalid number");
-
-        match direction {
-            "L" => dial.turn_left(clicks),
-            "R" => dial.turn_right(clicks),
-            _ => panic!("Invalid line format: {}", trimmed),
-        }
-    }
+    dial.perform_rotations(&rotations);
 
     // Output all positions
     println!("Positions: {:?}", dial.history);
     println!("Number of zero values: {}", dial.zero_count);
     println!("Number of zero crossings: {}", dial.zero_crossings);
-
-    Ok(())
 }
+
+fn read_file_lines(path: &str) -> io::Result<Vec<String>> {
+    let file = fs::File::open(path)?;
+    let reader = io::BufReader::new(file);
+    reader.lines().collect()
+}
+
 
 
 struct Dial {
@@ -56,6 +41,20 @@ impl Dial {
             history: vec![50],
             zero_count: 0,
             zero_crossings: 0,
+        }
+    }
+
+    fn perform_rotations(&mut self, rotations: &Vec<String>) {
+        for line in rotations {
+            // First character determines direction
+            let (direction, value_str) = line.split_at(1);
+            let clicks: i32 = value_str.trim().parse().expect("Invalid number");
+
+            match direction {
+                "L" => self.turn_left(clicks),
+                "R" => self.turn_right(clicks),
+                _ => panic!("Invalid line format: {}", line),
+            }
         }
     }
 
