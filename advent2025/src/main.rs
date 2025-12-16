@@ -5,8 +5,8 @@ use std::io;
 use std::io::BufRead;
 
 fn main() {
-    // let path = "/workspaces/advent-of-code-2025-rust/day1-example.txt";
-    let path = "/workspaces/advent-of-code-2025-rust/day1-input.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day1-example.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day1-input.txt";
     let rotations = read_file_lines(path).unwrap();
     let mut dial = Dial::new();
 
@@ -59,7 +59,11 @@ impl Dial {
     }
 
     fn turn_left(&mut self, clicks: i32) {
-        self.zero_crossings += (clicks + 100 - self.position) / 100;
+        // Special case if dial is on zero, adding 100 causes an additional crossing.
+        self.zero_crossings += match self.position {
+            0 => clicks / 100,
+            _ => (clicks + 100 - self.position) / 100,
+        };
         self.turn(-clicks);
     }
 
@@ -69,7 +73,7 @@ impl Dial {
     }
 
     fn turn(&mut self, clicks: i32) {
-        self.position = (self.position - clicks).rem_euclid(100);
+        self.position = (self.position + clicks).rem_euclid(100);
         self.history.push(self.position);
         if self.position == 0 {
             self.zero_count += 1;
@@ -102,7 +106,7 @@ fn problem1_real_data() {
     dial.perform_rotations(&rotations);
 
     // Assert
-    assert_eq!(dial.zero_count, 1059)
+    assert_eq!(dial.zero_count, 1059);
 }
 
 #[test]
@@ -131,6 +135,19 @@ fn problem2real_data() {
 
     // Assert
     println!("Number of zero crossings: {}", dial.zero_crossings);
-    assert!(dial.zero_crossings < 6315) // First guess was too high
-    //assert_eq!(dial.zero_crossings, 0)
+    assert!(dial.zero_crossings < 6315); // First guess was too high
+    assert_eq!(dial.zero_crossings, 6305);
+}
+
+#[test]
+fn given_dial_on_zero_when_rotate_left_expect_correct_number_of_zero_crossings() {
+    // Arrange
+    let mut dial = Dial::new();
+    dial.position = 0; // Hack the start position
+
+    // Act
+    dial.turn_left(0);
+
+    // Assert
+    assert_eq!(dial.zero_crossings, 0);
 }
