@@ -1,14 +1,23 @@
 use rstest::rstest;
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 
 pub fn main() {
-    let path = "/workspaces/advent-of-code-2025-rust/day2-input.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day2-example.txt";
 
-    let sum = find_password(path);
+    
+    println!("Part 1");
+    let part1 = find_password(path);
+    println!();
 
-    println!("Password: {}", sum);
+    println!("Part 2");
+    let part2 = find_new_password(path);
+    println!();
+
+    println!("Part 1 password: {}", part1);
+    println!("Part 2 password: {}", part2);
 }
 
 fn find_password(path: &str) -> u128 {
@@ -18,6 +27,28 @@ fn find_password(path: &str) -> u128 {
     for range in ranges {
         let invalid_ids = find_invalid_ids(range.start, range.end, 2);
         println!("Start {}, End {}, Invalid IDs: {:?}", range.start, range.end, invalid_ids);
+        let total: u128 = invalid_ids.iter().sum();
+        sum += total;
+    }
+
+    sum
+}
+
+fn find_new_password(path: &str) -> u128 {
+    let ranges = read_ranges_from_file(path);
+
+    let mut sum: u128 = 0;
+    for range in ranges {
+        let max_repeat_count = range.end.to_string().len();
+        print!("Start {}, End {}", range.start, range.end);
+        let mut invalid_ids = HashSet::new();
+        for repeat_count in 2..=max_repeat_count {
+            let invalid_ids_for_repeat_count = find_invalid_ids(range.start, range.end, repeat_count);
+            if !invalid_ids_for_repeat_count.is_empty() { print!(", Invalid IDs (repeat {}): {:?}", repeat_count, invalid_ids_for_repeat_count); }
+            invalid_ids.extend(invalid_ids_for_repeat_count);
+        }
+        println!(" => Invalid IDs: {:?}", invalid_ids); 
+
         let total: u128 = invalid_ids.iter().sum();
         sum += total;
     }
@@ -173,4 +204,16 @@ fn check_part1_input() {
     println!("Password: {}", password);
     assert!(password > 19717846043); // First guess too low
     assert_eq!(password, 30608905813);
+}
+
+#[test]
+fn check_part2_example() {
+    // Arrange
+    let path = "/workspaces/advent-of-code-2025-rust/day2-example.txt";
+
+    // Act
+    let password = find_new_password(path);
+
+    // Assert
+    assert_eq!(password, 4174379265);
 }
