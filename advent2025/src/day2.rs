@@ -11,15 +11,16 @@ pub fn main() {
 
 fn find_invalid_ids(range_start: u128, range_end: u128) -> Vec<u128> {
     let start = find_first_invalid_id_sequence(range_start);
-    let end = find_first_invalid_id_sequence(range_end + 1);
     let mut invalid_ids: Vec<u128> = Vec::new();
     
     let mut current = start;
-    while current < end {
+    loop {
         let invalid_id = duplicate_block(current);
+        if invalid_id > range_end { break; }
         invalid_ids.push(invalid_id);
         current += 1;
     }
+    
     invalid_ids
 }
 
