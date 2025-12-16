@@ -1,7 +1,7 @@
 use rstest::rstest;
 
 pub fn main() {
-    let path = "/workspaces/advent-of-code-2025-rust/day2-example.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day2-input.txt";
 
     let sum = find_password(path);
 
@@ -249,4 +249,17 @@ fn check_part1_example() {
 
     // Assert
     assert_eq!(password, 1227775554);
+}
+
+#[test]
+fn check_part1_input() {
+    // Arrange
+    let path = "/workspaces/advent-of-code-2025-rust/day2-input.txt";
+
+    // Act
+    let password = find_password(path);
+
+    // Assert
+    println!("Password: {}", password);
+    assert!(password > 19717846043); // First guess too low
 }
