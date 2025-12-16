@@ -4,7 +4,15 @@
 
 
 pub fn main() {
+    let start = find_first_invalid_id_sequence(11);
+    let end = find_first_invalid_id_sequence(23);
 
+    let mut current = start;
+    while current < end {
+        let invalid_id = duplicate_block(current);
+        println!("{}", invalid_id);
+        current += 1;
+    }
 }
 
 
@@ -48,6 +56,15 @@ fn pow10_u128(exp: u32) -> u128 {
     }
     acc
 }
+
+fn duplicate_block(n: u128) -> u128 {
+    let s = n.to_string();
+    let mut out = String::with_capacity(s.len() * 2);
+    out.push_str(&s);
+    out.push_str(&s);
+    out.parse::<u128>().ok().unwrap()
+}
+
 
 #[test]
 pub fn test_find_first_invalid_id_sequence() {
