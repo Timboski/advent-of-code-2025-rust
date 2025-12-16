@@ -76,3 +76,59 @@ impl Dial {
         }
     }
 }
+
+#[test]
+fn problem1_example() {
+    // Arrange
+    let path = "/workspaces/advent-of-code-2025-rust/day1-example.txt";
+    let rotations = read_file_lines(path).unwrap();
+    let mut dial = Dial::new();
+
+    // Act
+    dial.perform_rotations(&rotations);
+
+    // Assert
+    assert_eq!(dial.zero_count, 3);
+}
+
+#[test]
+fn problem1_real_data() {
+    // Arrange
+    let path = "/workspaces/advent-of-code-2025-rust/day1-input.txt";
+    let rotations = read_file_lines(path).unwrap();
+    let mut dial = Dial::new();
+
+    // Act
+    dial.perform_rotations(&rotations);
+
+    // Assert
+    assert_eq!(dial.zero_count, 1059)
+}
+
+#[test]
+fn problem2example() {
+    // Arrange
+    let path = "/workspaces/advent-of-code-2025-rust/day1-example.txt";
+    let rotations = read_file_lines(path).unwrap();
+    let mut dial = Dial::new();
+
+    // Act
+    dial.perform_rotations(&rotations);
+
+    // Assert
+    assert_eq!(dial.zero_crossings, 6);
+}
+
+#[test]
+fn problem2real_data() {
+    // Arrange
+    let path = "/workspaces/advent-of-code-2025-rust/day1-input.txt";
+    let rotations = read_file_lines(path).unwrap();
+    let mut dial = Dial::new();
+
+    // Act
+    dial.perform_rotations(&rotations);
+
+    // Assert
+    assert_eq!(dial.zero_crossings, 0)
+}
