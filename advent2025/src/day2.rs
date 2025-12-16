@@ -183,23 +183,23 @@ fn duplicate_block(n: u128) -> u128 {
 
 #[test]
 pub fn test_find_first_invalid_id_sequence() {
-    // 9 has 1 digit (odd) -> round to 10 (even 2 digits) -> "10" -> halves: "1" and "0" -> max = 1
+    // 9 has 1 digit (odd) -> round to 10 (even 2 digits) -> first invalid 11 so sequence is 1
     assert_eq!(find_first_invalid_id_sequence(9), 1);
 
-    // 12 has 2 digits (even) -> keep 12 -> "12" -> halves: "1" and "2" -> max = 2
+    // 12 has 2 digits (even) -> keep 12 -> first invalid 22 so sequence is 2
     assert_eq!(find_first_invalid_id_sequence(12), 2);
 
-    // 999 has 3 digits (odd) -> round to 1000 -> "1000" -> halves: "10" and "00" -> max = 10
+    // 999 has 3 digits (odd) -> round to 1000 -> first invalid 1010 so sequence is 10
     assert_eq!(find_first_invalid_id_sequence(999), 10);
 
-    // 1234 has 4 digits (even) -> keep -> "1234" -> halves: "12" and "34" -> max = 34
-    assert_eq!(find_first_invalid_id_sequence(1234), 34);
+    // 1234 has 4 digits (even) -> keep 1234 -> first invalid 1313 so sequence is 13
+    assert_eq!(find_first_invalid_id_sequence(1234), 13);
 
-    // 1 -> round to 10 -> halves: "1" and "0" -> 1
+    // 1 -> round to 10 -> first invalid 11 so sequence is 1
     assert_eq!(find_first_invalid_id_sequence(1), 1);
 
-    // Large even-digit number
-    assert_eq!(find_first_invalid_id_sequence(12345678), 5678);
+    // Large even-digit number -> first invalid 12351235 so sequence is 1235
+    assert_eq!(find_first_invalid_id_sequence(12345678), 1235);
 }
 
 #[rstest]
