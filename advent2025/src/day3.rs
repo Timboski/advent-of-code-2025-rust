@@ -1,7 +1,14 @@
+use rstest::rstest;
 
 
 pub fn main() {
-    let input: Vec<u8> = "987654321111111".chars()
+    let battery_bank = "987654321111111";
+    let joltage = compute_joltage_of_battery_bank(battery_bank);
+    print!("Joltage: {}", joltage)
+}
+
+fn compute_joltage_of_battery_bank(battery_bank: &str) -> u8 {
+    let input: Vec<u8> = battery_bank.chars()
         .map(|ch| ch
         .to_digit(10)
         .map(|d| d as u8)
@@ -13,7 +20,7 @@ pub fn main() {
     let second_number = result.1.iter().max().unwrap();
     let joltage = first_number * 10 + second_number;
     println!("Joltage of {:?} is {} and {} equals {}", input, first_number, second_number, joltage);
-
+    joltage
 }
 
 /// Finds the maximum within the first `len - x` elements and returns:
@@ -90,4 +97,21 @@ fn test_max_and_tail_after_first_max_ignore_last() {
         max_and_tail_after_first_max_ignore_last(&[1, 2, 9], 3),
         None
     );
+}
+
+#[rstest]
+#[case("987654321111111", 98)]
+#[case("811111111111119", 89)]
+#[case("234234234234278", 78)]
+#[case("818181911112111", 92)]
+fn test_examples_for_part_1(
+    #[case] battery_bank: &str,
+    #[case] expected_joltage: u8
+)
+{
+    // Act
+    let joltage = compute_joltage_of_battery_bank(battery_bank);
+
+    // Assert
+    assert_eq!(joltage, expected_joltage);
 }
