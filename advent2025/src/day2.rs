@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 
+#[allow(dead_code)]
 pub fn main() {
     let path = "/workspaces/advent-of-code-2025-rust/day2-input.txt";
 
