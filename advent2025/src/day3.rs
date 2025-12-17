@@ -1,13 +1,23 @@
 use rstest::rstest;
+use crate::utils::read_file_lines;
 
 
 pub fn main() {
-    let battery_bank = "987654321111111";
-    let joltage = compute_joltage_of_battery_bank(battery_bank);
-    print!("Joltage: {}", joltage)
+    let path = "/workspaces/advent-of-code-2025-rust/day3-input.txt";
+    let total_joltage = find_total_joltage(path);
+    println!("Total Joltage: {}", total_joltage);
 }
 
-fn compute_joltage_of_battery_bank(battery_bank: &str) -> u8 {
+fn find_total_joltage(path: &str) -> u128 {
+    let input = read_file_lines(path).unwrap();
+    let mut total_joltage: u128 = 0;
+    for battery_bank in input {
+        total_joltage += compute_joltage_of_battery_bank(battery_bank) as u128
+    }
+    total_joltage
+}   
+
+fn compute_joltage_of_battery_bank(battery_bank: String) -> u8 {
     let input: Vec<u8> = battery_bank.chars()
         .map(|ch| ch
         .to_digit(10)
@@ -110,7 +120,22 @@ fn test_examples_for_part_1(
 )
 {
     // Act
-    let joltage = compute_joltage_of_battery_bank(battery_bank);
+    let joltage = compute_joltage_of_battery_bank(battery_bank.to_string());
+
+    // Assert
+    assert_eq!(joltage, expected_joltage);
+}
+
+#[rstest]
+#[case("/workspaces/advent-of-code-2025-rust/day3-example.txt", 357)]
+#[case("/workspaces/advent-of-code-2025-rust/day3-input.txt", 17376)]
+fn test_part1_answers(
+    #[case] path: &str,
+    #[case] expected_joltage: u128
+)
+{
+    // Act
+    let joltage = find_total_joltage(path);
 
     // Assert
     assert_eq!(joltage, expected_joltage);

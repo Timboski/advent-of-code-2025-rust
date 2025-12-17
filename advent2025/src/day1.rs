@@ -1,6 +1,5 @@
-use std::fs;
-use std::io;
-use std::io::BufRead;
+use crate::utils::read_file_lines;
+
 
 #[allow(dead_code)]
 pub fn main() {
@@ -16,14 +15,6 @@ pub fn main() {
     println!("Number of zero values: {}", dial.zero_count);
     println!("Number of zero crossings: {}", dial.zero_crossings);
 }
-
-
-pub fn read_file_lines(path: &str) -> io::Result<Vec<String>> {
-    let file = fs::File::open(path)?;
-    let reader = io::BufReader::new(file);
-    reader.lines().collect()
-}
-
 
 
 pub struct Dial {
