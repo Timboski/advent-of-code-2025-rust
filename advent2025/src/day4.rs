@@ -19,7 +19,7 @@ pub fn main() {
 fn part1(path: &str) -> usize {
     let grid = load_grid_from_file(path);
 
-    let count = count_filled_with_fewer_than_4_neighbors(&grid);
+    let count = count_and_clear_fewer_than_4_neighbors(&grid).0;
     count
 }
 
@@ -101,8 +101,17 @@ fn parse_grid(input: &str) -> Result<Vec<Vec<bool>>, String> {
     Ok(grid)
 }
 
-/// Count how many filled cells have fewer than 4 filled neighbors (8-directional).
-fn count_filled_with_fewer_than_4_neighbors(grid: &Vec<Vec<bool>>) -> usize {
+
+/// Count how many filled cells have fewer than 4 filled neighbors (8-directional),
+/// and return a new grid where those counted cells are set to false.
+///
+/// Returns: (count, new_grid)
+pub fn count_and_clear_fewer_than_4_neighbors(grid: &[Vec<bool>]) -> (usize, Vec<Vec<bool>>) {
+    // Handle empty cases safely
+    if grid.is_empty() || grid[0].is_empty() {
+        return (0, grid.to_owned());
+    }
+
     let h = grid.len();
     let w = grid[0].len();
 
@@ -112,7 +121,9 @@ fn count_filled_with_fewer_than_4_neighbors(grid: &Vec<Vec<bool>>) -> usize {
         ( 1, -1), ( 1, 0), ( 1, 1),
     ];
 
-    let mut count = 0;
+    // Start with a copy of the input grid that we will modify
+    let mut new_grid = grid.to_owned();
+    let mut count = 0usize;
 
     for r in 0..h {
         for c in 0..w {
@@ -120,6 +131,7 @@ fn count_filled_with_fewer_than_4_neighbors(grid: &Vec<Vec<bool>>) -> usize {
                 continue; // Only consider filled cells
             }
 
+            // Count filled neighbors (8-directional)
             let mut neighbors_filled = 0;
             for (dr, dc) in directions.iter() {
                 let nr = r as isize + dr;
@@ -134,12 +146,14 @@ fn count_filled_with_fewer_than_4_neighbors(grid: &Vec<Vec<bool>>) -> usize {
 
             if neighbors_filled < 4 {
                 count += 1;
+                new_grid[r][c] = false; // Clear this cell in the output grid
             }
         }
     }
 
-    count
+    (count, new_grid)
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -153,7 +167,7 @@ mod tests {
         // Center has exactly 4 neighbors; arms have fewer than 4.
         let input = ".@.\n@@@\n.@.\n";
         let grid = parse_grid(input).unwrap();
-        let count = count_filled_with_fewer_than_4_neighbors(&grid);
+        let count = count_and_clear_fewer_than_4_neighbors(&grid).0;
         assert_eq!(count, 4);
     }
 
@@ -164,7 +178,7 @@ mod tests {
         // ..@
         let input = "@..\n...\n..@\n";
         let grid = parse_grid(input).unwrap();
-        let count = count_filled_with_fewer_than_4_neighbors(&grid);
+        let count = count_and_clear_fewer_than_4_neighbors(&grid).0;
         // Both filled cells have 0 neighbors, which is < 4.
         assert_eq!(count, 2);
     }
@@ -178,7 +192,7 @@ mod tests {
         // So all 4 cells have neighbors_filled = 3, thus counted.
         let input = "@@\n@@\n";
         let grid = parse_grid(input).unwrap();
-        let count = count_filled_with_fewer_than_4_neighbors(&grid);
+        let count = count_and_clear_fewer_than_4_neighbors(&grid).0;
         assert_eq!(count, 4);
     }
 }
