@@ -9,17 +9,34 @@ use std::process;
 #[allow(dead_code)]
 pub fn main() {
     // Expect exactly one argument: the file path
-    let path = "/workspaces/advent-of-code-2025-rust/day4-example.txt";
-    // let path = "/workspaces/advent-of-code-2025-rust/day4-input.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day4-example.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day4-input.txt";
 
-    let count = part1(path);
-    println!("{}", count);
+    let count1 = part1(path);
+    let count2 = part2(path);
+
+    println!("Single unloading step - {}", count1);
+    println!("All possible steps - {}", count2);
 }
 
 fn part1(path: &str) -> usize {
     let grid = load_grid_from_file(path);
 
     let count = count_and_clear_fewer_than_4_neighbors(&grid).0;
+    count
+}
+
+fn part2(path: &str) -> usize {
+    let mut grid = load_grid_from_file(path);
+
+    let mut count = 0;
+    loop {            
+        let frame = count_and_clear_fewer_than_4_neighbors(&grid);
+        count += frame.0;
+        grid = frame.1;
+        if frame.0 == 0 { break; }
+    }
+
     count
 }
 
@@ -197,7 +214,6 @@ mod tests {
     }
 }
 
-
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day4-example.txt", 13)]
 #[case("/workspaces/advent-of-code-2025-rust/day4-input.txt", 1489)]
@@ -208,6 +224,21 @@ fn test_part1_answers(
 {
     // Act
     let rolls = part1(path);
+
+    // Assert
+    assert_eq!(rolls, expected_rolls);
+}
+
+#[rstest]
+#[case("/workspaces/advent-of-code-2025-rust/day4-example.txt", 43)]
+#[case("/workspaces/advent-of-code-2025-rust/day4-input.txt", 8890)]
+fn test_part2_answers(
+    #[case] path: &str,
+    #[case] expected_rolls: usize
+)
+{
+    // Act
+    let rolls = part2(path);
 
     // Assert
     assert_eq!(rolls, expected_rolls);
