@@ -1,4 +1,21 @@
 
+
+pub fn main() {
+    let input: Vec<u8> = "987654321111111".chars()
+        .map(|ch| ch
+        .to_digit(10)
+        .map(|d| d as u8)
+        .unwrap())
+        .collect();
+
+    let result = max_and_tail_after_first_max_ignore_last(&input, 1).unwrap();
+    let first_number = result.0;
+    let second_number = result.1.iter().max().unwrap();
+    let joltage = first_number * 10 + second_number;
+    println!("Joltage of {:?} is {} and {} equals {}", input, first_number, second_number, joltage);
+
+}
+
 /// Finds the maximum within the first `len - x` elements and returns:
 /// - the max value (`i8`)
 /// - a Vec<i8> containing all elements **after the first occurrence** of that max,
@@ -10,7 +27,7 @@
 /// Notes:
 /// - The max and its first index are determined **only** over the prefix `&nums[..len - x]`.
 /// - The tail is taken from `nums[(max_idx + 1)..]` (full vector, not truncated).
-fn max_and_tail_after_first_max_ignore_last(nums: &[i8], x: usize) -> Option<(i8, Vec<i8>)> {
+fn max_and_tail_after_first_max_ignore_last(nums: &[u8], x: usize) -> Option<(u8, Vec<u8>)> {
     let len = nums.len();
     if x >= len {
         return None; // no prefix to compute a max over
@@ -40,23 +57,9 @@ fn max_and_tail_after_first_max_ignore_last(nums: &[i8], x: usize) -> Option<(i8
     Some((max_val, tail))
 }
 
-pub fn main() {
-    let data = vec![3i8, 7, 2, 7, 1, 9, 4, 9, 5];
 
-    // x = 0: compute on full slice; tail after first 9 includes the whole suffix
-    let r0 = max_and_tail_after_first_max_ignore_last(&data, 0);
-    println!("x=0 -> {:?}", r0);
-    // Expect: Some((9, vec![4, 9, 5]))
-
-    // x = 3: compute max over [3,7,2,7,1,9], but tail includes the ignored [4,9,5] too
-    let r3 = max_and_tail_after_first_max_ignore_last(&data, 3);
-    println!("x=3 -> {:?}", r3);
-    // Expect: Some((9, vec![4, 9, 5]))
-
-    // x = len: no prefix, no max
-    let r_all = max_and_tail_after_first_max_ignore_last(&data, data.len());
-    println!("x=len -> {:?}", r_all);
-
+#[test]
+fn test_max_and_tail_after_first_max_ignore_last() {
     // Assertions covering behavior
     assert_eq!(max_and_tail_after_first_max_ignore_last(&[], 0), None);
     assert_eq!(
