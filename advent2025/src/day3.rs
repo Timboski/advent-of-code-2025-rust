@@ -2,22 +2,25 @@ use rstest::rstest;
 use crate::utils::read_file_lines;
 
 
+#[allow(dead_code)]
 pub fn main() {
     let path = "/workspaces/advent-of-code-2025-rust/day3-input.txt";
-    let total_joltage = find_total_joltage(path);
+    let total_joltage = find_total_joltage(path, 2);
+    let total_override_joltage = find_total_joltage(path, 12);
     println!("Total Joltage: {}", total_joltage);
+    println!("Total Override Joltage: {}", total_override_joltage);
 }
 
-fn find_total_joltage(path: &str) -> u128 {
+fn find_total_joltage(path: &str, number_of_cells: usize) -> u128 {
     let input = read_file_lines(path).unwrap();
     let mut total_joltage: u128 = 0;
     for battery_bank in input {
-        total_joltage += compute_joltage_of_battery_bank(battery_bank) as u128
+        total_joltage += compute_joltage_of_battery_bank(battery_bank, number_of_cells) as u128
     }
     total_joltage
-}   
+}
 
-fn compute_joltage_of_battery_bank(battery_bank: String) -> u8 {
+fn compute_joltage_of_battery_bank(battery_bank: String, number_of_cells: usize) -> u128 {
     let input: Vec<u8> = battery_bank.chars()
         .map(|ch| ch
         .to_digit(10)
@@ -25,13 +28,19 @@ fn compute_joltage_of_battery_bank(battery_bank: String) -> u8 {
         .unwrap())
         .collect();
 
-    let result = max_and_tail_after_first_max_ignore_last(&input, 1).unwrap();
-    let first_number = result.0;
-    let second_number = result.1.iter().max().unwrap();
-    let joltage = first_number * 10 + second_number;
-    println!("Joltage of {:?} is {} and {} equals {}", input, first_number, second_number, joltage);
+    print!("Joltage of {:?}", input);
+    let mut joltage: u128 = 0;
+    let mut battery_bank = input;
+    for i in (0..number_of_cells).rev() {
+        let result = max_and_tail_after_first_max_ignore_last(&battery_bank, i).unwrap();
+        joltage += result.0 as u128 * 10u128.pow(i as u32);
+        battery_bank = result.1;
+    }
+    
+    println!(" is {}", joltage);
     joltage
 }
+
 
 /// Finds the maximum within the first `len - x` elements and returns:
 /// - the max value (`i8`)
@@ -116,11 +125,11 @@ fn test_max_and_tail_after_first_max_ignore_last() {
 #[case("818181911112111", 92)]
 fn test_examples_for_part_1(
     #[case] battery_bank: &str,
-    #[case] expected_joltage: u8
+    #[case] expected_joltage: u128
 )
 {
     // Act
-    let joltage = compute_joltage_of_battery_bank(battery_bank.to_string());
+    let joltage = compute_joltage_of_battery_bank(battery_bank.to_string(), 2);
 
     // Assert
     assert_eq!(joltage, expected_joltage);
@@ -135,7 +144,22 @@ fn test_part1_answers(
 )
 {
     // Act
-    let joltage = find_total_joltage(path);
+    let joltage = find_total_joltage(path, 2);
+
+    // Assert
+    assert_eq!(joltage, expected_joltage);
+}
+
+#[rstest]
+#[case("/workspaces/advent-of-code-2025-rust/day3-example.txt", 3121910778619)]
+#[case("/workspaces/advent-of-code-2025-rust/day3-input.txt", 172119830406258)]
+fn test_part2_answers(
+    #[case] path: &str,
+    #[case] expected_joltage: u128
+)
+{
+    // Act
+    let joltage = find_total_joltage(path, 12);
 
     // Assert
     assert_eq!(joltage, expected_joltage);
