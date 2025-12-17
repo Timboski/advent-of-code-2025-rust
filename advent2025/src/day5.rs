@@ -77,7 +77,7 @@ fn find_total_number_of_fresh_items(path: &str) -> u64 {
         if range.start <= end {
             // We can combine these ranges
             print!("Combining range {}-{} with {}-{}", start, end, range.start, range.end);
-            end = range.end;
+            if range.end > end {end = range.end}
             println!(" => {}-{}", start, end);
         }
         else {
@@ -120,7 +120,7 @@ fn test_part1_answers(
 
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day5-example.txt", 14)]
-// #[case("/workspaces/advent-of-code-2025-rust/day5-input.txt", 325794691374101)]
+#[case("/workspaces/advent-of-code-2025-rust/day5-input.txt", 348548952146313)]
 fn test_part2_answers(
     #[case] path: &str,
     #[case] expected_fresh_items: u64
