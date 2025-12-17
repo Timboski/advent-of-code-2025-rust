@@ -2,21 +2,28 @@
 // in rust read a matrix from a file. Each line contains . for an empty space and @ for a full space. Find the number of full spaces which have fewer than 4 adjacent spaces filled. count adjacent as the 8 surrounding spaces.
 
 
-use std::env;
+use rstest::rstest;
 use std::fs;
 use std::process;
 
 #[allow(dead_code)]
 pub fn main() {
     // Expect exactly one argument: the file path
-    let path = match env::args().nth(1) {
-        Some(p) => p,
-        None => {
-            eprintln!("Usage: cargo run -- <path_to_matrix_file>");
-            process::exit(1);
-        }
-    };
+    let path = "/workspaces/advent-of-code-2025-rust/day4-example.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day4-input.txt";
 
+    let count = part1(path);
+    println!("{}", count);
+}
+
+fn part1(path: &str) -> usize {
+    let grid = load_grid_from_file(path);
+
+    let count = count_filled_with_fewer_than_4_neighbors(&grid);
+    count
+}
+
+fn load_grid_from_file(path: &str) -> Vec<Vec<bool>> {
     // Load the file contents
     let contents = match fs::read_to_string(&path) {
         Ok(s) => s,
@@ -34,9 +41,7 @@ pub fn main() {
             process::exit(1);
         }
     };
-
-    let count = count_filled_with_fewer_than_4_neighbors(&grid);
-    println!("{}", count);
+    grid
 }
 
 /// Parse the input text into a rectangular grid.
@@ -176,4 +181,20 @@ mod tests {
         let count = count_filled_with_fewer_than_4_neighbors(&grid);
         assert_eq!(count, 4);
     }
+}
+
+
+#[rstest]
+#[case("/workspaces/advent-of-code-2025-rust/day4-example.txt", 13)]
+#[case("/workspaces/advent-of-code-2025-rust/day4-input.txt", 1489)]
+fn test_part1_answers(
+    #[case] path: &str,
+    #[case] expected_rolls: usize
+)
+{
+    // Act
+    let rolls = part1(path);
+
+    // Assert
+    assert_eq!(rolls, expected_rolls);
 }
