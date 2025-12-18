@@ -1,10 +1,31 @@
 use crate::utils::read_file_lines;
+use rstest::rstest;
 
 #[allow(dead_code)]
 pub fn main() {
-    // let path = "/workspaces/advent-of-code-2025-rust/day6-example.txt";
-    let path = "/workspaces/advent-of-code-2025-rust/day6-input.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day6-example.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day6-input.txt";
 
+    let total1 = part1(path);
+    //let total2 = part2(path);
+
+    println!();
+    println!("Grand Total (Part1): {}", total1);
+    //println!("Grand Total (Part2): {}", total2);
+}
+
+fn part1(path: &str) -> u64 {
+    let problems = decode_puzzle_input(path);
+
+    let mut total = 0;
+    for problem in problems {
+        total += solver(problem)
+    }
+
+    total
+}
+
+fn decode_puzzle_input(path: &str) -> Vec<(char, Vec<String>)> {
     let lines = read_file_lines(path).unwrap();
     let num_arguments = lines.len() - 1;
     println!("Size of problems: {}", num_arguments);
@@ -23,27 +44,52 @@ pub fn main() {
     let num_problems = matrix[0].len();
     println!("Number of problems: {}", num_problems);
 
-    let mut total = 0;
+    let mut problems: Vec<(char, Vec<String>)> = Vec::new();
     for prob_idx in 0..num_problems {
-        let operator = &matrix[num_arguments][prob_idx].chars().next().unwrap();
-        let mut answer = match operator {            
-                '*' => 1,
-                '+' => 0,
-                _ => panic!(),
-        };
+        let operator = matrix[num_arguments][prob_idx].chars().next().unwrap();
+        let mut arguments = Vec::new();
         for arg_idx in 0..num_arguments {
-            let argument: u64 = (&matrix[arg_idx][prob_idx]).parse().unwrap();
-            if (arg_idx > 0) {print!("{}",operator)}
-            print!("{}",argument);
-            answer = match operator {
-                '*' => answer * argument,
-                '+' => answer + argument,
-                _ => panic!(),
-            }
-
+            arguments.push(matrix[arg_idx][prob_idx].clone());
         }
-        total += answer;
-        println!("={}",answer);
+        problems.push((operator, arguments));
     }
-    println!("Grand Total: {}", total);
+
+    problems
+}
+
+fn solver(problem: (char, Vec<String>)) -> u64 {
+    let mut answer = match problem.0 {            
+            '*' => 1,
+            '+' => 0,
+            _ => panic!(),
+    };
+    for arg_idx in 0..problem.1.len() {
+        let argument: u64 = (problem.1[arg_idx]).parse().unwrap();
+        if arg_idx > 0 {print!("{}",problem.0)}
+        print!("{}",argument);
+        answer = match problem.0 {
+            '*' => answer * argument,
+            '+' => answer + argument,
+            _ => panic!(),
+        }
+    }
+
+    println!("={}", answer);
+    answer
+}
+
+
+#[rstest]
+#[case("/workspaces/advent-of-code-2025-rust/day6-example.txt", 4277556)]
+#[case("/workspaces/advent-of-code-2025-rust/day6-input.txt", 5346286649122)]
+fn test_part1_answers(
+    #[case] path: &str,
+    #[case] expected_total: u64
+)
+{
+    // Act
+    let total = part1(path);
+
+    // Assert
+    assert_eq!(total, expected_total);
 }
