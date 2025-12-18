@@ -7,16 +7,50 @@ pub fn main() {
     // let path = "/workspaces/advent-of-code-2025-rust/day6-input.txt";
 
     let total1 = part1(path);
-    //let total2 = part2(path);
+    let total2 = part2(path);
 
     println!();
     println!("Grand Total (Part1): {}", total1);
-    //println!("Grand Total (Part2): {}", total2);
+    println!("Grand Total (Part2): {}", total2);
 }
 
 fn part1(path: &str) -> u64 {
     let problems = decode_puzzle_input(path);
 
+    solve(problems)
+}
+
+fn part2(path: &str) -> u64 {
+    let problems = decode_puzzle_input(path);
+
+    // Manipulate the strings
+    let mut adjusted_problems: Vec<(char, Vec<String>)> = Vec::new();
+    for problem in problems {
+        let operation = problem.0;
+        let arguments = decode_from_cephalopod(problem.1);
+        adjusted_problems.push((operation, arguments));
+    }
+
+    solve(adjusted_problems)
+}
+
+fn decode_from_cephalopod(arguments: Vec<String>) -> Vec<String> {
+    println!("Input {:?}", arguments);
+    let longest_input = arguments.iter().map(|a| a.len()).max().unwrap();
+    println!("Longest input {}", longest_input);
+    let mut output: Vec<String> = vec![String::new(); longest_input];
+    for i in (0..longest_input).rev() {
+        print!("i = {}: ", i);
+        for arg in arguments.iter().filter(|a| a.len() > i) {
+            output[i].push(arg.chars().skip(i).next().unwrap());
+        }
+        println!("{}", output[i]);
+    }
+
+    output
+}
+
+fn solve(problems: Vec<(char, Vec<String>)>) -> u64 {
     let mut total = 0;
     for problem in problems {
         total += solver(problem)
