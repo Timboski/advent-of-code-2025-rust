@@ -3,8 +3,8 @@ use rstest::rstest;
 
 #[allow(dead_code)]
 pub fn main() {
-    let path = "/workspaces/advent-of-code-2025-rust/day7-example.txt";
-    // let path = "/workspaces/advent-of-code-2025-rust/day7-input.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day7-example.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day7-input.txt";
 
     let (splits, paths) = trace_beam_path(path);
 
@@ -21,11 +21,11 @@ fn trace_beam_path(path: &str) -> (u32, u64) {
     println!("{:?}", prev);
     let mut splits = 0;
     for current in iter {
-        let path = compute_path(&prev, current);
-        println!("{:?}", path.0);
+        let (current_counts, new_splits) = compute_path(&prev, current);
+        println!("{:?}", current_counts);
 
-        splits += path.1;
-        prev = path.0;
+        splits += new_splits;
+        prev = current_counts;
     }
 
     (splits, prev.iter().sum::<u64>())
@@ -47,8 +47,7 @@ fn compute_path(prev: &Vec<u64>, current: &String) -> (Vec<u64>, u32) {
                     new_line[i+1] += n;
                 },
                 _ => panic!(),
-            },
-            _ => {}
+            }
         }
     };
 
