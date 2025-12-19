@@ -23,6 +23,34 @@ pub fn main() {
         jbs.push(Connection {start: box_index, end: index, distance_squared: distance});
     }
 
+    // Find duplicates
+    let mut duplicates = Vec::new();
+    for jb in &jbs {
+        let other = &jbs[jb.end];
+        assert!(jb.end == other.start);
+        if jb.start == other.end {
+            // Duplicate entry
+            print!("Duplicate found {:?} {:?}", jb, other);
+            if duplicates.contains(&(jb.start)) {
+                print!(" - already in list");
+            }
+            else {                
+                duplicates.push(jb.end);
+            }
+            println!();
+        }
+    }
+    println!("Duplicates found: {:?}", duplicates);
+
+    // Remove duplicates
+    // We must do this starting with the highest index so as not to change the duplicate indices.
+    duplicates.sort();
+    duplicates.reverse();
+    for dup in duplicates {
+        println!("Removing: {}", dup);
+        jbs.remove(dup);
+    }
+
     jbs.sort_by_key(|k| k.distance_squared);
     for jb in jbs {println!("{:?} {:?} {:?}",jb, boxes[jb.start], boxes[jb.end])}
 }
