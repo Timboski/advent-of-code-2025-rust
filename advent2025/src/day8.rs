@@ -6,62 +6,47 @@ pub fn main() {
     let path = "/workspaces/advent-of-code-2025-rust/day8-example.txt";
     // let path = "/workspaces/advent-of-code-2025-rust/day8-input.txt";
 
+    // Read the file
     let boxes: Vec<Point3D> = read_file_lines(path)
         .unwrap()
         .iter()
         .map(|l| Point3D::new(l))
         .collect();
 
+    // Find all possible connections
     let mut jbs = Vec::new();
     for (box_index, b) in boxes.iter().enumerate() {        
-        let (index, distance) = boxes.iter()
+        for (index, distance) in boxes.iter()
             .enumerate()
             .filter(|(_, point)| *point != b)
             .map(|(index, point)| (index, b.distance_squared(point)))
-            .min_by_key(|k| k.1)
-            .unwrap();
-        jbs.push(Connection {start: box_index, end: index, distance_squared: distance});
-    }
-
-    // Find duplicates
-    let mut duplicates = Vec::new();
-    for jb in &jbs {
-        let other = &jbs[jb.end];
-        assert!(jb.end == other.start);
-        if jb.start == other.end {
-            // Duplicate entry
-            //print!("Duplicate found {:?} {:?}", jb, other);
-            if duplicates.contains(&(jb.start)) {
-                //print!(" - already in list");
-            }
-            else {                
-                duplicates.push(jb.end);
-            }
-            //println!();
+        {
+            jbs.push(PotentialConnection {start: box_index, end: index, distance_squared: distance});
         }
     }
-    // println!("Duplicates found: {:?}", duplicates);
 
-    // Remove duplicates
-    // We must do this starting with the highest index so as not to change the duplicate indices.
-    duplicates.sort();
-    duplicates.reverse();
-    for dup in duplicates {
-        // println!("Removing: {}", dup);
-        jbs.remove(dup);
-    }
-
+    // Sort connections by distance
     jbs.sort_by_key(|k| k.distance_squared);
-    for jb in &jbs {println!("{:?} {:?} {:?}",jb, boxes[jb.start], boxes[jb.end])}
+    println!("Potential connections: {}", jbs.len());
+    for jb in jbs.iter().take(20) {println!("{:?} {:?} {:?}",jb, boxes[jb.start], boxes[jb.end])}
 
     // Make groups
+    let mut connections: Vec<Connection> = Vec::new();
     let mut groups: Vec<Vec<usize>> = Vec::new();
-    for jb in jbs.iter().take(10) {
-        println!();
+    for jb in &jbs {
+        println!("Num connections made: {}", connections.len());
         for (index, group) in groups.iter().enumerate() {println!("{}: {:?}", index, group)};
+        if connections.len() >= 10 { break }
+        println!();
+        if connections.iter().any(|c| c.isSame(&jb)) {             
+            println!("Connection {}-{} already made", jb.start, jb.end);
+            continue;
+        }
+
         let start_group = find_group(&groups, jb.start);
         let end_group = find_group(&groups, jb.end);
         print!("Connection {}-{}: {:?} {:?} : ", jb.start, jb.end, start_group, end_group);
+        connections.push(Connection { start: jb.start, end: jb.end });
 
         match start_group {
             None => match end_group {
@@ -77,11 +62,19 @@ pub fn main() {
             Some(start) => match end_group {
                 None => {
                     println!("Add end to group {}", start);
-                    panic!("Not implemented");
+                    groups[start].push(jb.end);
                 }
                 Some(end) => {
-                    println!("Combine Groups {} and {}", start, end);
-                    panic!("Not implemented");
+                    if start == end {
+                        println!("Already in same group");
+                    } else {
+                        println!("Combine Groups {} and {}", start, end);
+
+                        let mut end_elements = Vec::new();
+                        end_elements.append(&mut groups[end]);
+                        groups[start].append(&mut end_elements);
+                        groups.remove(end);
+                    }
                 }
             }
         }
@@ -90,7 +83,7 @@ pub fn main() {
 }
 
 fn find_group(groups: &Vec<Vec<usize>>, index: usize) -> Option<usize> {
-    print!("Find {} in {:?} ", index, groups);
+    // print!("Find {} in {:?} ", index, groups);
     let start_group = groups
         .iter()
         .enumerate()
@@ -98,7 +91,7 @@ fn find_group(groups: &Vec<Vec<usize>>, index: usize) -> Option<usize> {
         .map(|(index, _)| index)
         .next();
 
-    println!("-> {:?}", start_group);
+    // println!("-> {:?}", start_group);
     start_group
 }
 
@@ -129,8 +122,28 @@ fn get_squared_distance(pos: u32, other_pos: u32) -> u64 {
 }
 
 #[derive(Debug)]
-struct Connection {
+struct PotentialConnection {
     start: usize,
     end: usize,
     distance_squared: u64,
+}
+
+#[derive(Debug)]
+struct Connection {
+    start: usize,
+    end: usize
+}
+
+impl Connection {
+    fn isSame(&self, connection: &PotentialConnection) -> bool {
+        if self.start == connection.start && self.end == connection.end {
+            return true;
+        }
+
+        if self.start == connection.end && self.end == connection.start {
+            return true;
+        }
+
+        return false;
+    }
 }
