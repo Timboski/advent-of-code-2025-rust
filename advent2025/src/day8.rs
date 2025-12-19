@@ -3,9 +3,17 @@ use crate::utils::read_file_lines;
 
 #[allow(dead_code)]
 pub fn main() {
-    let path = "/workspaces/advent-of-code-2025-rust/day8-example.txt";
-    // let path = "/workspaces/advent-of-code-2025-rust/day8-input.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day8-example.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day8-input.txt";
 
+    let max_number_of_connections= 1000;
+
+    let answer = part1(path, max_number_of_connections);
+
+    println!("Size of top 3 groups: {}", answer);
+}
+
+fn part1(path: &str, max_number_of_connections: usize) -> usize {
     // Read the file
     let boxes: Vec<Point3D> = read_file_lines(path)
         .unwrap()
@@ -36,7 +44,7 @@ pub fn main() {
     for jb in &jbs {
         println!("Num connections made: {}", connections.len());
         for (index, group) in groups.iter().enumerate() {println!("{}: {:?}", index, group)};
-        if connections.len() >= 10 { break }
+        if connections.len() >= max_number_of_connections { break }
         println!();
         if connections.iter().any(|c| c.isSame(&jb)) {             
             println!("Connection {}-{} already made", jb.start, jb.end);
@@ -86,8 +94,7 @@ pub fn main() {
     groups.reverse();
     for (index, group) in groups.iter().enumerate() {println!("{}: {:?}", index, group)};
     let answer: usize = groups.iter().take(3).map(|g| g.len()).product();
-    println!("Size of top 3 groups: {}", answer);
-
+    answer
 }
 
 fn find_group(groups: &Vec<Vec<usize>>, index: usize) -> Option<usize> {
