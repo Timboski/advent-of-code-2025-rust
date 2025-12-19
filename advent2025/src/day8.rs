@@ -6,7 +6,7 @@ pub fn main() {
     // let path = "/workspaces/advent-of-code-2025-rust/day8-example.txt";
     let path = "/workspaces/advent-of-code-2025-rust/day8-input.txt";
 
-    let max_number_of_connections= 1000;
+    let max_number_of_connections= 1000000000;
 
     let answer = part1(path, max_number_of_connections);
 
@@ -45,15 +45,17 @@ fn part1(path: &str, max_number_of_connections: usize) -> usize {
         println!("Num connections made: {}", connections.len());
         for (index, group) in groups.iter().enumerate() {println!("{}: {:?}", index, group)};
         if connections.len() >= max_number_of_connections { break }
+        if groups.len() == 1 && groups[0].len() == boxes.len() {break}
         println!();
-        if connections.iter().any(|c| c.isSame(&jb)) {             
+        if connections.iter().any(|c| c.is_same(&jb)) {             
             println!("Connection {}-{} already made", jb.start, jb.end);
             continue;
         }
 
         let start_group = find_group(&groups, jb.start);
         let end_group = find_group(&groups, jb.end);
-        print!("Connection {}-{}: {:?} {:?} : ", jb.start, jb.end, start_group, end_group);
+        println!("Connection {}-{}: {:?} {:?} : ", jb.start, jb.end, start_group, end_group);
+        println!("X-Distance {:?}-{:?}: {}", boxes[jb.start], boxes[jb.end], boxes[jb.start].x as u128 * boxes[jb.end].x as u128);
         connections.push(Connection { start: jb.start, end: jb.end });
 
         match start_group {
@@ -150,7 +152,7 @@ struct Connection {
 }
 
 impl Connection {
-    fn isSame(&self, connection: &PotentialConnection) -> bool {
+    fn is_same(&self, connection: &PotentialConnection) -> bool {
         if self.start == connection.start && self.end == connection.end {
             return true;
         }
