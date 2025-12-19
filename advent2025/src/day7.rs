@@ -1,0 +1,48 @@
+use crate::utils::read_file_lines;
+//use rstest::rstest;
+
+#[allow(dead_code)]
+pub fn main() {
+    // let path = "/workspaces/advent-of-code-2025-rust/day7-example.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day7-input.txt";
+
+    let input = read_file_lines(path).unwrap();
+
+    let mut iter = input.iter();
+    let mut prev: String = iter.next().unwrap().clone();
+
+    let mut splits = 0;
+    for current in iter {
+        let path = compute_path(&prev, current);
+        println!("{:?}", path.0);
+
+        splits += path.1;
+        prev = path.0;
+    }
+
+    println!("Number of splits: {}", splits);
+}
+
+fn compute_path(prev: &String, current: &String) -> (String, u32) {
+    let prev_chars: Vec<char> = prev.chars().collect();
+    let current_chars: Vec<char> = current.chars().collect();
+    let mut new_line = current_chars.clone();
+
+    let mut num_splits = 0;
+    for i in 0..prev.len() {
+        match prev_chars[i] {
+            'S' | '|' => match current_chars[i] {
+                '.' => new_line[i] = '|',
+                '^' => {
+                    num_splits += 1;
+                    new_line[i-1] = '|';
+                    new_line[i+1] = '|';
+                },
+                _ => panic!(),
+            },
+            _ => {}
+        }
+    };
+
+    (new_line.into_iter().collect(), num_splits)
+}
