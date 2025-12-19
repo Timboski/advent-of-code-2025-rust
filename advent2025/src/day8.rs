@@ -80,6 +80,14 @@ pub fn main() {
         }
     }
 
+    println!();
+    println!("FINISHED");
+    groups.sort_by_key(|g| g.len());
+    groups.reverse();
+    for (index, group) in groups.iter().enumerate() {println!("{}: {:?}", index, group)};
+    let answer: usize = groups.iter().take(3).map(|g| g.len()).product();
+    println!("Size of top 3 groups: {}", answer);
+
 }
 
 fn find_group(groups: &Vec<Vec<usize>>, index: usize) -> Option<usize> {
