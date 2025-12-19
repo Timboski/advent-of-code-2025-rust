@@ -9,8 +9,9 @@ pub fn main() {
     let input = read_file_lines(path).unwrap();
 
     let mut iter = input.iter();
-    let mut prev: String = iter.next().unwrap().clone();
+    let mut prev = iter.next().unwrap().chars().map(|c| match c {'.' => 0, 'S' => 1, _ => panic!()}).collect();
 
+    println!("{:?}", prev);
     let mut splits = 0;
     for current in iter {
         let path = compute_path(&prev, current);
@@ -21,22 +22,23 @@ pub fn main() {
     }
 
     println!("Number of splits: {}", splits);
+    println!("Number of paths: {}", prev.iter().sum::<u64>());
 }
 
-fn compute_path(prev: &String, current: &String) -> (String, u32) {
-    let prev_chars: Vec<char> = prev.chars().collect();
+fn compute_path(prev: &Vec<u64>, current: &String) -> (Vec<u64>, u32) {
     let current_chars: Vec<char> = current.chars().collect();
-    let mut new_line = current_chars.clone();
+    let mut new_line = vec![0; current.len()];
 
     let mut num_splits = 0;
     for i in 0..prev.len() {
-        match prev_chars[i] {
-            'S' | '|' => match current_chars[i] {
-                '.' => new_line[i] = '|',
+        match prev[i] {
+            0 => {}, 
+            n => match current_chars[i] {
+                '.' => new_line[i] += n,
                 '^' => {
                     num_splits += 1;
-                    new_line[i-1] = '|';
-                    new_line[i+1] = '|';
+                    new_line[i-1] += n;
+                    new_line[i+1] += n;
                 },
                 _ => panic!(),
             },
