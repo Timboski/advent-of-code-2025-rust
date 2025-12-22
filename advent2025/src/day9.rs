@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io::{self, Write}};
+use std::collections::HashMap;
 use crate::utils::read_file_lines;
 use rstest::rstest;
 
