@@ -82,7 +82,22 @@ fn part_2(path: &str) -> u64 {
         previous_point = &point;
     }
 
-    for y in matrix {
+    // Fill in the shape
+    // If we have a Red-Greens-Red pattern (e.g. #X# or #XX#) then we cannot know
+    // (just from that line) if the following tiles are inside or outside.
+    // Assumption - there is only 1 such (#XXX#) pattern on each row, so we can stop
+    // when we hit it. By scanning from both side we will get to all tiles.
+    // Note: Red tiles are always part of the #X# pattern so can just stop if we hit Red
+    for mut row in &mut matrix {
+        // Run left to right
+        fill_inside_tiles(&mut row);
+        row.reverse();
+        fill_inside_tiles(&mut row);
+        row.reverse();
+    }
+
+    // Plot the tiles
+    for y in &matrix {
         for x in y {
             print!("{}", x);
         }
@@ -90,6 +105,18 @@ fn part_2(path: &str) -> u64 {
     }
 
     0
+}
+
+fn fill_inside_tiles(row: &mut Vec<char>) {
+    let mut inside = false;
+    for tile in row.iter_mut() {
+        match *tile {
+            '.' => if inside { *tile = 'x'; }
+            'X' => { inside = !inside; }
+            '#'| 'x' => { break; }
+            _ => panic!()
+        }
+    }
 }
 
 fn get_range(previous_point: usize, point: usize) -> std::ops::RangeInclusive<usize> {
