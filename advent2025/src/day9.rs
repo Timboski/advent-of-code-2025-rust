@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, io::{self, Write}};
 use crate::utils::read_file_lines;
 use rstest::rstest;
 
@@ -7,23 +7,32 @@ pub fn main() {
     // let path = "/workspaces/advent-of-code-2025-rust/day9-example.txt";
     let path = "/workspaces/advent-of-code-2025-rust/day9-input.txt";
 
-    let max_area = part_2(path);
+    let area = part_1(path);
 
-    println!("Biggest rectangle: {}", max_area);
+    println!("Biggest rectangle: {}", area);
 }
 
+#[allow(dead_code)]
 fn part_1(path: &str) -> u64 {
     let points = read_points_from_file(path);
+    let areas = compute_rectangles(points);
+    areas.first().unwrap().0
+}
 
-    let mut max_area = 0;
+#[allow(dead_code)]
+fn compute_rectangles(points: Vec<(u32, u32)>) -> Vec<(u64, u32, u32, u32, u32)> {
+    let mut areas = Vec::new();
     for point1 in &points {
         for point2 in &points {
             let area = compute_side_length(point1.0, point2.0) * compute_side_length(point1.1, point2.1);
-            println!("Compare: {:?} -> {:?} = {}", point1, point2, area);
-            max_area = max_area.max(area);
+            areas.push((area,point1.0, point2.0, point1.1, point2.1));
         }
     }
-    max_area
+
+    areas.sort();
+    areas.reverse();
+
+    areas
 }
 
 fn read_points_from_file(path: &str) -> Vec<(u32, u32)> {
