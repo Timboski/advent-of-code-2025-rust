@@ -61,8 +61,13 @@ pub fn main() {
             new_steps.push(*mask);
             
             if !states_seen.contains(&new_state) {
-                universes.push((Reverse(new_priority), new_state, new_steps));
-                states_seen.insert(new_state);
+                let new_universe = (Reverse(new_priority), new_state, new_steps);
+                if new_state == desired_state {
+                    println!("Target reached: {:?}", new_universe);
+                    return;
+                };
+                universes.push(new_universe);
+                states_seen.insert(new_state);                
             }
         }
     }
