@@ -7,7 +7,7 @@ pub fn main() {
     // let path = "/workspaces/advent-of-code-2025-rust/day9-example.txt";
     let path = "/workspaces/advent-of-code-2025-rust/day9-input.txt";
 
-    let area = part_1(path);
+    let area = part_2(path);
 
     println!("Biggest rectangle: {}", area);
 }
@@ -113,7 +113,38 @@ fn part_2(path: &str) -> u64 {
         println!();
     }
 
+    // Find the rectangles to test
+    let rectangles = compute_rectangles(points);
+    for rectangle in rectangles {
+        // Map to the normalised coordinates
+        let x1 = x_map[&rectangle.1];
+        let x2 = x_map[&rectangle.2];
+        let y1 = y_map[&rectangle.3];
+        let y2 = y_map[&rectangle.4];
+
+        // Test each of the lines
+        // Assumption: If all of the lines are inside the shape, the whole rectangle must be inside the shape.
+        // Note: This holds as long as the shape contains no holes (which it doesn't)
+        if is_line_inside_shape(x1, y1, x1, y2, &matrix) && 
+            is_line_inside_shape(x2, y1, x2, y2, &matrix) && 
+            is_line_inside_shape(x1, y1, x2, y1, &matrix) && 
+            is_line_inside_shape(x1, y2, x2, y2, &matrix) { 
+            // We have found the result.
+            return rectangle.0
+        }
+    }
+
     0
+}
+
+fn is_line_inside_shape(x1: usize, y1: usize, x2: usize, y2: usize, matrix: &Vec<Vec<char>>) -> bool {
+    for x in get_range(x1,x2) {
+        for y in get_range(y1, y2) {
+            if matrix[y][x] == '.' { return false; }
+        }
+    }
+    
+    true
 }
 
 fn fill_inside_tiles(row: &mut Vec<char>) {
