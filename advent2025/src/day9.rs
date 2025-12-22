@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::utils::read_file_lines;
 use rstest::rstest;
 
@@ -6,21 +7,13 @@ pub fn main() {
     // let path = "/workspaces/advent-of-code-2025-rust/day9-example.txt";
     let path = "/workspaces/advent-of-code-2025-rust/day9-input.txt";
 
-    let max_area = part_1(path);
+    let max_area = part_2(path);
 
     println!("Biggest rectangle: {}", max_area);
 }
 
 fn part_1(path: &str) -> u64 {
-    let lines = read_file_lines(path).unwrap();
-    let points: Vec<(u32, u32)> = lines.iter()
-        .map(
-            |l| {
-                let coords = l.split_once(",").unwrap();
-                (coords.0.parse().unwrap(), coords.1.parse().unwrap())
-            }                
-        )
-        .collect();
+    let points = read_points_from_file(path);
 
     let mut max_area = 0;
     for point1 in &points {
@@ -33,8 +26,75 @@ fn part_1(path: &str) -> u64 {
     max_area
 }
 
+fn read_points_from_file(path: &str) -> Vec<(u32, u32)> {
+    let lines = read_file_lines(path).unwrap();
+    let points: Vec<(u32, u32)> = lines.iter()
+        .map(
+            |l| {
+                let coords = l.split_once(",").unwrap();
+                (coords.0.parse().unwrap(), coords.1.parse().unwrap())
+            }                
+        )
+        .collect();
+    points
+}
+
 fn compute_side_length(point1: u32, point2: u32) -> u64 {
     point1.abs_diff(point2) as u64 + 1
+}
+
+fn part_2(path: &str) -> u64 {
+    let points = read_points_from_file(path);
+
+    // Visualise the floor area
+    let mut x_values: Vec<u32> = points.iter().map(|p| p.0).collect();
+    x_values.sort();
+    x_values.dedup();
+    let x_map: HashMap<&u32, usize> = x_values.iter()
+        .enumerate()
+        .map(|(i, val)| (val, i))
+        .collect();
+
+    let mut y_values: Vec<u32> = points.iter().map(|p| p.1).collect();
+    y_values.sort();
+    y_values.dedup();
+    let y_map: HashMap<&u32, usize> = y_values.iter()
+        .enumerate()
+        .map(|(i, val)| (val, i))
+        .collect();
+
+    let mut matrix = vec![vec!['.'; x_map.len()]; y_map.len()];
+    let mut previous_point = points.last().unwrap();
+    for point in &points {
+        let prev_x = x_map[&previous_point.0];
+        let prev_y = y_map[&previous_point.1];
+        let point_x = x_map[&point.0];
+        let point_y = y_map[&point.1];
+        matrix[point_y][point_x] = '#';
+
+        // Draw in the greens
+        for x in get_range(prev_x, point_x) {
+            for y in get_range(prev_y, point_y) {
+                if matrix[y][x] == '.' { matrix[y][x] = 'X';}
+            }
+        }
+
+        previous_point = &point;
+    }
+
+    for y in matrix {
+        for x in y {
+            print!("{}", x);
+        }
+        println!();
+    }
+
+    0
+}
+
+fn get_range(previous_point: usize, point: usize) -> std::ops::RangeInclusive<usize> {
+    if previous_point < point { return previous_point..=point; }
+    point..=previous_point
 }
 
 
