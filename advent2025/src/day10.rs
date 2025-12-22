@@ -1,3 +1,5 @@
+use std::cmp::Reverse;
+use std::collections::{BinaryHeap, HashSet};
 use crate::utils::read_file_lines;
 // use rstest::rstest;
 
@@ -16,7 +18,7 @@ pub fn main() {
     println!("Desired State: {:?}", desired_state);
     let (line_fragment_2, line_fragment_3) = parts.1.split_once("{").unwrap();
     
-    let mask: Vec<u8> = line_fragment_2
+    let masks: Vec<u8> = line_fragment_2
         .split_whitespace()
         .map(|s| 
             s.trim_matches(|c| c == '(' || c == ')')
@@ -25,17 +27,45 @@ pub fn main() {
             .sum()
         )
         .collect();
-    println!("Steps {:?}", mask);
+    println!("Steps {:?}", masks);
 
-    // Test applying steps.
-    let mut state = 0u8;
-    //let steps = vec![0, 1, 2];
-    let steps = vec![1, 3, 5, 5];
-    for step in steps {
-        state ^= mask[step];
-        println!("Applying {} => {}", step, state);
+    // // Test applying steps.
+    // let mut state = 0u8;
+    // //let steps = vec![0, 1, 2];
+    // let steps = vec![1, 3, 5, 5];
+    // for step in steps {
+    //     state ^= mask[step];
+    //     println!("Applying {} => {}", step, state);
+    // }
+
+    let mut universes: BinaryHeap<(Reverse<u32>, u8, Vec<u8>)> = BinaryHeap::new();
+    universes.push((Reverse(0), 0, Vec::new()));
+
+    let mut states_seen: HashSet<u8> = HashSet::new(); // Don't revisit the same state twice
+
+    loop {
+        // Get the universe with the lowsest number of button pushes so far.
+        let universe = match universes.pop() {
+            Some(u) => u,
+            None => { break; },
+        };
+        println!("Universe: {:?}", universe);
+
+        let Reverse(priority) = universe.0;
+        let new_priority = priority + 1;
+
+        // Spawn new universes for each possible mask.
+        for mask in &masks {
+            let new_state = universe.1 ^ mask;
+            let mut new_steps = universe.2.clone();
+            new_steps.push(*mask);
+            
+            if !states_seen.contains(&new_state) {
+                universes.push((Reverse(new_priority), new_state, new_steps));
+                states_seen.insert(new_state);
+            }
+        }
     }
-    
     
     println!("Joltages (unused) {:?}", line_fragment_3);
 }
