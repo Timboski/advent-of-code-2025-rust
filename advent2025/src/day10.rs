@@ -8,16 +8,18 @@ pub fn main() {
     let path = "/workspaces/advent-of-code-2025-rust/day10-example.txt";
     // let path = "/workspaces/advent-of-code-2025-rust/day10-input.txt";
 
-    // Do it exhaustively to check against example
     let lines = read_file_lines(path).unwrap();
-    // let line = lines.iter().skip(1).next().unwrap();
     let line = lines.first().unwrap();
+    let presses = find_fewest_button_presses(line);
 
-    let parts =  line.split_once("]").unwrap();
+    println!("Fewest button presses: {}", presses);
+}
+
+fn find_fewest_button_presses(machine_description: &String) -> u32 {
+    let parts =  machine_description.split_once("]").unwrap();
     let desired_state = find_desired_state(parts.0);
     println!("Desired State: {:?}", desired_state);
     let (line_fragment_2, line_fragment_3) = parts.1.split_once("{").unwrap();
-    
     let masks: Vec<u8> = line_fragment_2
         .split_whitespace()
         .map(|s| 
@@ -28,21 +30,10 @@ pub fn main() {
         )
         .collect();
     println!("Steps {:?}", masks);
-
-    // // Test applying steps.
-    // let mut state = 0u8;
-    // //let steps = vec![0, 1, 2];
-    // let steps = vec![1, 3, 5, 5];
-    // for step in steps {
-    //     state ^= mask[step];
-    //     println!("Applying {} => {}", step, state);
-    // }
-
+    println!("Joltages (unused) {:?}", line_fragment_3);
     let mut universes: BinaryHeap<(Reverse<u32>, u8, Vec<u8>)> = BinaryHeap::new();
     universes.push((Reverse(0), 0, Vec::new()));
-
-    let mut states_seen: HashSet<u8> = HashSet::new(); // Don't revisit the same state twice
-
+    let mut states_seen: HashSet<u8> = HashSet::new();
     loop {
         // Get the universe with the lowsest number of button pushes so far.
         let universe = match universes.pop() {
@@ -59,20 +50,22 @@ pub fn main() {
             let new_state = universe.1 ^ mask;
             let mut new_steps = universe.2.clone();
             new_steps.push(*mask);
-            
+        
+        
+            // Don't revisit the same state twice
             if !states_seen.contains(&new_state) {
                 let new_universe = (Reverse(new_priority), new_state, new_steps);
                 if new_state == desired_state {
                     println!("Target reached: {:?}", new_universe);
-                    return;
+                    return new_priority;
                 };
                 universes.push(new_universe);
                 states_seen.insert(new_state);                
             }
         }
     }
-    
-    println!("Joltages (unused) {:?}", line_fragment_3);
+
+    0
 }
 
 fn find_desired_state(first_line_fragment: &str) -> u8 {
