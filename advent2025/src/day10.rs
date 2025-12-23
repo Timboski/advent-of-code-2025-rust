@@ -77,9 +77,6 @@ fn find_desired_state(first_line_fragment: &str) -> u8 {
     first_line_fragment
         .chars()
         .skip(1)
-        .collect::<Vec<char>>()
-        .iter()
-        .rev()
         .map(|c| match c {
             '.' => 0u8,
             '#' => 1u8,
