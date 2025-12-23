@@ -197,7 +197,7 @@ impl StatePart2 {
         let (lights_def, remainder) = machine_definition.split_once("]").unwrap();
         let (maks_def, joltage_def) = remainder.split_once("{").unwrap();
         println!("Lights (unused): {:?}", lights_def);
-        let mut button_actions = find_button_actions(maks_def);
+        let button_actions = find_button_actions(maks_def);
         println!("Steps {:?}", button_actions);
         let joltages: Vec<u16> = joltage_def.trim_end_matches("}").split(",").map(|s| s.parse().unwrap()).collect();
         println!("Joltages {:?}", joltages);
