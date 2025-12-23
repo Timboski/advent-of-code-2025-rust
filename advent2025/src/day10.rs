@@ -9,13 +9,18 @@ pub fn main() {
     // let path = "/workspaces/advent-of-code-2025-rust/day10-input.txt";
 
     let lines = read_file_lines(path).unwrap();
-    let line = lines.first().unwrap();
-    let presses = find_fewest_button_presses(line);
+    let mut total_presses = 0;
+    for line in lines {
+        let presses = find_fewest_button_presses(line);
+        println!("Fewest button presses: {}", presses);
+        println!();
+        total_presses += presses;
+    }
 
-    println!("Fewest button presses: {}", presses);
+    println!("Total presses: {}", total_presses);
 }
 
-fn find_fewest_button_presses(machine_description: &String) -> u32 {
+fn find_fewest_button_presses(machine_description: String) -> u32 {
     let parts =  machine_description.split_once("]").unwrap();
     let desired_state = find_desired_state(parts.0);
     println!("Desired State: {:?}", desired_state);
@@ -65,7 +70,7 @@ fn find_fewest_button_presses(machine_description: &String) -> u32 {
         }
     }
 
-    0
+    panic!("Desired state not found!");
 }
 
 fn find_desired_state(first_line_fragment: &str) -> u8 {
