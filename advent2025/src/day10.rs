@@ -8,9 +8,11 @@ pub fn main() {
     let path = "/workspaces/advent-of-code-2025-rust/day10-example.txt";
     // let path = "/workspaces/advent-of-code-2025-rust/day10-input.txt";
 
-    let total_presses = part2(path);
+    let total_presses_for_lights = part1(path);
+    let total_presses_for_joltage = part2(path);
 
-    println!("Total presses: {}", total_presses);
+    println!("Total presses for lights: {}", total_presses_for_lights);
+    println!("Total presses for joltage: {}", total_presses_for_joltage);
 }
 
 fn part1(path: &str) -> u32 {
@@ -27,7 +29,7 @@ fn part1(path: &str) -> u32 {
         println!("Joltages (unused) {:?}", line_fragment_3);
 
 
-        let presses = find_fewest_button_presses(desired_state, button_actions);
+        let presses = find_fewest_button_presses(desired_state, button_actions, |s| s ^ 1);
         println!("Fewest button presses: {}", presses);
         println!();
         total_presses += presses;
@@ -47,10 +49,10 @@ fn part2(path: &str) -> u32 {
         let button_actions = find_button_actions(line_fragment_2);
         println!("Steps {:?}", button_actions);
         let joltages: Vec<u16> = line_fragment_3.trim_end_matches("}").split(",").map(|s| s.parse().unwrap()).collect();
-        println!("Joltages {:?}", line_fragment_3);
+        println!("Joltages {:?}", joltages);
 
 
-        let presses = find_fewest_button_presses(joltages, button_actions);
+        let presses = find_fewest_button_presses(joltages, button_actions, |s| s + 1);
         println!("Fewest button presses: {}", presses);
         println!();
         total_presses += presses;
@@ -71,17 +73,23 @@ fn find_button_actions(line_fragment_2: &str) -> Vec<Vec<usize>> {
         .collect()
 }
 
-fn find_fewest_button_presses(desired_state: Vec<u16>, buttons: Vec<Vec<usize>>) -> u32 {
+fn find_fewest_button_presses(desired_state: Vec<u16>, buttons: Vec<Vec<usize>>, update_state: impl Fn(u16) -> u16) -> u32 {
     let mut universes: BinaryHeap<(Reverse<u32>, Vec<u16>)> = BinaryHeap::new();
     universes.push((Reverse(0), vec![0; desired_state.len()]));
     let mut states_seen: HashSet<String> = HashSet::new();
+    let mut log_counter = 0;
     loop {
         // Get the universe with the lowsest number of button pushes so far.
         let universe = match universes.pop() {
             Some(u) => u,
             None => { break; },
         };
-        println!("Universe: {:?}", universe);
+
+        log_counter += 1;
+        if log_counter > 0 {
+            println!("Universes: {} Current Universe: {:?}", universes.len(), universe);
+            log_counter = 0;
+        }
 
         let Reverse(priority) = universe.0;
         let new_priority = priority + 1;
@@ -91,8 +99,7 @@ fn find_fewest_button_presses(desired_state: Vec<u16>, buttons: Vec<Vec<usize>>)
             // Update state
             let mut new_state = universe.1.clone();
             for element in mask {
-                // new_state[*element] ^= 1; // Toggle state
-                new_state[*element] += 1; // Increase Joltage
+                new_state[*element] = update_state(new_state[*element]);
             }
 
             // Don't revisit the same state twice
@@ -105,8 +112,13 @@ fn find_fewest_button_presses(desired_state: Vec<u16>, buttons: Vec<Vec<usize>>)
                     return new_priority;
                 };
 
+                states_seen.insert(state);
+                
+                // Check if state is valid
+                //if !new_state.iter().zip(&desired_state).any(|(n, d)| n > d) { .. 
+                // NOTE: This needs to be different for part1 as bits are toggled!
+
                 universes.push(new_universe);
-                states_seen.insert(state);                
             }
         }
     }
@@ -137,6 +149,21 @@ fn test_part1_answers(
 {
     // Act
     let presses = part1(path);
+
+    // Assert
+    assert_eq!(presses, expected_presses);
+}
+
+#[rstest]
+#[case("/workspaces/advent-of-code-2025-rust/day10-example.txt", 33)]
+//#[case("/workspaces/advent-of-code-2025-rust/day10-input.txt", ??)]
+fn test_part2_answers(
+    #[case] path: &str,
+    #[case] expected_presses: u32
+)
+{
+    // Act
+    let presses = part2(path);
 
     // Assert
     assert_eq!(presses, expected_presses);
