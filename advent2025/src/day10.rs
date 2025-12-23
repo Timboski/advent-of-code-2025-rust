@@ -1,13 +1,19 @@
 use std::cmp::Reverse;
 use std::collections::{BinaryHeap, HashSet};
 use crate::utils::read_file_lines;
-// use rstest::rstest;
+use rstest::rstest;
 
 #[allow(dead_code)]
 pub fn main() {
     // let path = "/workspaces/advent-of-code-2025-rust/day10-example.txt";
     let path = "/workspaces/advent-of-code-2025-rust/day10-input.txt";
 
+    let total_presses = part1(path);
+
+    println!("Total presses: {}", total_presses);
+}
+
+fn part1(path: &str) -> u32 {
     let lines = read_file_lines(path).unwrap();
     let mut total_presses = 0;
     for line in lines {
@@ -16,8 +22,7 @@ pub fn main() {
         println!();
         total_presses += presses;
     }
-
-    println!("Total presses: {}", total_presses);
+    total_presses
 }
 
 fn find_fewest_button_presses(machine_description: String) -> u32 {
@@ -86,4 +91,20 @@ fn find_desired_state(first_line_fragment: &str) -> u16 {
         .map(|(i, v)| v<<i)
         .into_iter()
         .sum()
+}
+
+
+#[rstest]
+#[case("/workspaces/advent-of-code-2025-rust/day10-example.txt", 7)]
+#[case("/workspaces/advent-of-code-2025-rust/day10-input.txt", 461)]
+fn test_part1_answers(
+    #[case] path: &str,
+    #[case] expected_presses: u32
+)
+{
+    // Act
+    let presses = part1(path);
+
+    // Assert
+    assert_eq!(presses, expected_presses);
 }
