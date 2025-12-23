@@ -202,11 +202,6 @@ impl StatePart2 {
         let joltages: Vec<u16> = joltage_def.trim_end_matches("}").split(",").map(|s| s.parse().unwrap()).collect();
         println!("Joltages {:?}", joltages);
 
-        // Sort button actions by the total increase in joltage (number of elements)
-        button_actions.sort_by_key(|e| e.len());
-        button_actions.reverse();
-        println!("Sorted Steps {:?}", button_actions);
-
         Self {
             button_pushes: 0,
             state: vec![0u16; joltages.len()],
@@ -239,7 +234,7 @@ impl State for StatePart2 {
             .collect()
     }
     
-    fn priority(&self)->i32 { -(self.button_pushes as i32) }
+    fn priority(&self)->i32 { self.state.iter().map(|u| *u as i32).sum() }
     fn button_pushes(&self)->u32 { self.button_pushes }
     fn is_desired_state(&self)->bool { self.state == self.desired_state }
     fn display(&self)->String { format!("{:?} Pushes={}", self.state, self.button_pushes) }
@@ -271,7 +266,7 @@ impl PartialOrd for ByKey {
 
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day10-example.txt", 7)]
-//#[case("/workspaces/advent-of-code-2025-rust/day10-input.txt", 461)]
+#[case("/workspaces/advent-of-code-2025-rust/day10-input.txt", 461)]
 fn test_part1_answers(
     #[case] path: &str,
     #[case] expected_presses: u32
