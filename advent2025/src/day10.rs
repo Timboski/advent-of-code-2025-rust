@@ -5,8 +5,8 @@ use crate::utils::read_file_lines;
 
 #[allow(dead_code)]
 pub fn main() {
-    let path = "/workspaces/advent-of-code-2025-rust/day10-example.txt";
-    // let path = "/workspaces/advent-of-code-2025-rust/day10-input.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day10-example.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day10-input.txt";
 
     let lines = read_file_lines(path).unwrap();
     let mut total_presses = 0;
@@ -25,20 +25,20 @@ fn find_fewest_button_presses(machine_description: String) -> u32 {
     let desired_state = find_desired_state(parts.0);
     println!("Desired State: {:?}", desired_state);
     let (line_fragment_2, line_fragment_3) = parts.1.split_once("{").unwrap();
-    let masks: Vec<u8> = line_fragment_2
+    let masks: Vec<u16> = line_fragment_2
         .split_whitespace()
         .map(|s| 
             s.trim_matches(|c| c == '(' || c == ')')
             .split(",")
-            .map(|i| 1u8<<i.parse::<usize>().unwrap())
+            .map(|i| 1u16<<i.parse::<usize>().unwrap())
             .sum()
         )
         .collect();
     println!("Steps {:?}", masks);
     println!("Joltages (unused) {:?}", line_fragment_3);
-    let mut universes: BinaryHeap<(Reverse<u32>, u8, Vec<u8>)> = BinaryHeap::new();
+    let mut universes: BinaryHeap<(Reverse<u32>, u16, Vec<u16>)> = BinaryHeap::new();
     universes.push((Reverse(0), 0, Vec::new()));
-    let mut states_seen: HashSet<u8> = HashSet::new();
+    let mut states_seen: HashSet<u16> = HashSet::new();
     loop {
         // Get the universe with the lowsest number of button pushes so far.
         let universe = match universes.pop() {
@@ -73,13 +73,13 @@ fn find_fewest_button_presses(machine_description: String) -> u32 {
     panic!("Desired state not found!");
 }
 
-fn find_desired_state(first_line_fragment: &str) -> u8 {
+fn find_desired_state(first_line_fragment: &str) -> u16 {
     first_line_fragment
         .chars()
         .skip(1)
         .map(|c| match c {
-            '.' => 0u8,
-            '#' => 1u8,
+            '.' => 0u16,
+            '#' => 1u16,
              _ => panic!()
         })
         .enumerate()
