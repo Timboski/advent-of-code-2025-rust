@@ -22,20 +22,12 @@ fn part1(path: &str) -> u32 {
         let desired_state = find_desired_state(parts.0);
         println!("Desired State: {:?}", desired_state);
         let (line_fragment_2, line_fragment_3) = parts.1.split_once("{").unwrap();
-        let masks: Vec<u16> = line_fragment_2
-            .split_whitespace()
-            .map(|s| 
-                s.trim_matches(|c| c == '(' || c == ')')
-                .split(",")
-                .map(|i| 1u16<<i.parse::<usize>().unwrap())
-                .sum()
-            )
-            .collect();
-        println!("Steps {:?}", masks);
+        let button_actions = find_button_actions(line_fragment_2);
+        println!("Steps {:?}", button_actions);
         println!("Joltages (unused) {:?}", line_fragment_3);
 
 
-        let presses = find_fewest_button_presses(desired_state, masks);
+        let presses = find_fewest_button_presses(desired_state, button_actions);
         println!("Fewest button presses: {}", presses);
         println!();
         total_presses += presses;
@@ -44,10 +36,22 @@ fn part1(path: &str) -> u32 {
     total_presses
 }
 
-fn find_fewest_button_presses(desired_state: u16, masks: Vec<u16>) -> u32 {
-    let mut universes: BinaryHeap<(Reverse<u32>, u16, Vec<u16>)> = BinaryHeap::new();
-    universes.push((Reverse(0), 0, Vec::new()));
-    let mut states_seen: HashSet<u16> = HashSet::new();
+fn find_button_actions(line_fragment_2: &str) -> Vec<Vec<usize>> {
+    line_fragment_2
+        .split_whitespace()
+        .map(|s| 
+            s.trim_matches(|c| c == '(' || c == ')')
+            .split(",")
+            .map(|s| s.parse::<usize>().unwrap())
+            .collect()
+        )
+        .collect()
+}
+
+fn find_fewest_button_presses(desired_state: Vec<u16>, buttons: Vec<Vec<usize>>) -> u32 {
+    let mut universes: BinaryHeap<(Reverse<u32>, Vec<u16>)> = BinaryHeap::new();
+    universes.push((Reverse(0), vec![0; desired_state.len()]));
+    let mut states_seen: HashSet<String> = HashSet::new();
     loop {
         // Get the universe with the lowsest number of button pushes so far.
         let universe = match universes.pop() {
@@ -60,20 +64,25 @@ fn find_fewest_button_presses(desired_state: u16, masks: Vec<u16>) -> u32 {
         let new_priority = priority + 1;
 
         // Spawn new universes for each possible mask.
-        for mask in &masks {
-            let new_state = universe.1 ^ mask;
-            let mut new_steps = universe.2.clone();
-            new_steps.push(*mask);
-            
+        for mask in &buttons {
+            // Update state
+            let mut new_state = universe.1.clone();
+            for element in mask {
+                new_state[*element] ^= 1; // Toggle state
+            }
+
             // Don't revisit the same state twice
-            if !states_seen.contains(&new_state) {
-                let new_universe = (Reverse(new_priority), new_state, new_steps);
+            let state = format!("{:?}", new_state);
+            if !states_seen.contains(&state) {
+                let new_universe = (Reverse(new_priority), new_state.clone());
+
                 if new_state == desired_state {
                     println!("Target reached: {:?}", new_universe);
                     return new_priority;
                 };
+
                 universes.push(new_universe);
-                states_seen.insert(new_state);                
+                states_seen.insert(state);                
             }
         }
     }
@@ -81,7 +90,7 @@ fn find_fewest_button_presses(desired_state: u16, masks: Vec<u16>) -> u32 {
     panic!("Desired state not found!");
 }
 
-fn find_desired_state(first_line_fragment: &str) -> u16 {
+fn find_desired_state(first_line_fragment: &str) -> Vec<u16> {
     first_line_fragment
         .chars()
         .skip(1)
@@ -90,10 +99,7 @@ fn find_desired_state(first_line_fragment: &str) -> u16 {
             '#' => 1u16,
              _ => panic!()
         })
-        .enumerate()
-        .map(|(i, v)| v<<i)
-        .into_iter()
-        .sum()
+        .collect()
 }
 
 
