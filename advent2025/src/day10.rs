@@ -5,10 +5,10 @@ use rstest::rstest;
 
 #[allow(dead_code)]
 pub fn main() {
-    // let path = "/workspaces/advent-of-code-2025-rust/day10-example.txt";
-    let path = "/workspaces/advent-of-code-2025-rust/day10-input.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day10-example.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day10-input.txt";
 
-    let total_presses = part1(path);
+    let total_presses = part2(path);
 
     println!("Total presses: {}", total_presses);
 }
@@ -28,6 +28,29 @@ fn part1(path: &str) -> u32 {
 
 
         let presses = find_fewest_button_presses(desired_state, button_actions);
+        println!("Fewest button presses: {}", presses);
+        println!();
+        total_presses += presses;
+    }
+
+    total_presses
+}
+
+fn part2(path: &str) -> u32 {
+    let lines = read_file_lines(path).unwrap();
+
+    let mut total_presses = 0;
+    for line in lines {
+        let parts =  line.split_once("]").unwrap();
+        println!("Lights (unused): {:?}", parts.0);
+        let (line_fragment_2, line_fragment_3) = parts.1.split_once("{").unwrap();
+        let button_actions = find_button_actions(line_fragment_2);
+        println!("Steps {:?}", button_actions);
+        let joltages: Vec<u16> = line_fragment_3.trim_end_matches("}").split(",").map(|s| s.parse().unwrap()).collect();
+        println!("Joltages {:?}", line_fragment_3);
+
+
+        let presses = find_fewest_button_presses(joltages, button_actions);
         println!("Fewest button presses: {}", presses);
         println!();
         total_presses += presses;
@@ -68,7 +91,8 @@ fn find_fewest_button_presses(desired_state: Vec<u16>, buttons: Vec<Vec<usize>>)
             // Update state
             let mut new_state = universe.1.clone();
             for element in mask {
-                new_state[*element] ^= 1; // Toggle state
+                // new_state[*element] ^= 1; // Toggle state
+                new_state[*element] += 1; // Increase Joltage
             }
 
             // Don't revisit the same state twice
