@@ -9,7 +9,7 @@ pub fn main() {
     // let path = "/workspaces/advent-of-code-2025-rust/day11-example2.txt";
     let path = "/workspaces/advent-of-code-2025-rust/day11-input.txt";
 
-    let num_paths = part_1(path);    
+    let num_paths = part_2(path);    
     
     println!();
     println!("Paths found: {}", num_paths);
@@ -19,29 +19,38 @@ pub fn main() {
 
 fn part_1(path: &str) -> u64 {
     let (connection, order) = compute_connections_and_topological_order(path);
-    let scores = find_number_of_paths(connection, order);
-    scores["you"]
+    find_number_of_paths("you".to_string(), "out".to_string(), &connection, &order)
 }
 
+fn part_2(path: &str) -> u64 {
+    let (connection, order) = compute_connections_and_topological_order(path);
+
+    let svr_to_fft = find_number_of_paths("svr".to_string(), "fft".to_string(), &connection, &order);
+    let fft_to_dac = find_number_of_paths("fft".to_string(), "dac".to_string(), &connection, &order);
+    let dac_to_out = find_number_of_paths("dac".to_string(), "out".to_string(), &connection, &order);
+
+    println!("SVR {} FFT {} DAC {} OUT", svr_to_fft, fft_to_dac, dac_to_out);
+    svr_to_fft * fft_to_dac * dac_to_out
+}
 
 /// Compute the number of paths to the end for each device
-fn find_number_of_paths(connection: HashMap<String, Vec<String>>, order: Vec<String>) -> HashMap<String, u64> {
+fn find_number_of_paths(start_device: String, end_device: String, connection: &HashMap<String, Vec<String>>, order: &Vec<String>) -> u64 {
     // Workthrough the devices in topological order assigning a score to each device.
     // The score is the number of routes to the end from that device.
     // This can be computed by summing the number of routes on each of its outgoing connections.
     let mut scores = HashMap::new();
-    for device in order {
-        println!("Scoring {}", device);
-        let links = &connection.get(&device);
-        let score = match links {
-            Some(l) => { l.iter().map(|i| scores[i]).sum() }
-            None => 1u64,
-        };
-        scores.insert(device, score);
+    scores.insert(end_device.clone(), 1);
+    for device in order.iter().skip_while(|d| **d != end_device).skip(1) {
+        print!("Scoring {}", device);
+        let zero = 0u64;
+        let score = connection[device].iter().map(|i| scores.get(i).unwrap_or(&zero)).sum();
+        println!(" = {}", score);
+        scores.insert(device.clone(), score);
+        if device == &start_device { break }
     }
 
     println!("Scores: {:?}", scores);
-    scores
+    scores[&start_device]
 }
 
 fn compute_connections_and_topological_order(path: &str) -> (HashMap<String, Vec<String>>, Vec<String>) {
@@ -112,8 +121,23 @@ fn test_part1_answers(
 )
 {
     // Act
-    let max_area = part_1(path);
+    let num_paths = part_1(path);
 
     // Assert
-    assert_eq!(max_area, expected_paths);
+    assert_eq!(num_paths, expected_paths);
+}
+
+#[rstest]
+#[case("/workspaces/advent-of-code-2025-rust/day11-example2.txt", 2)]
+#[case("/workspaces/advent-of-code-2025-rust/day11-input.txt", 287039700129600)]
+fn test_part2_answers(
+    #[case] path: &str,
+    #[case] expected_paths: u64
+)
+{
+    // Act
+    let num_paths = part_2(path);
+
+    // Assert
+    assert_eq!(num_paths, expected_paths);
 }
