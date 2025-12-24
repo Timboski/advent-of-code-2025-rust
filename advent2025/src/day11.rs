@@ -3,9 +3,9 @@ use std::collections::HashMap;
 
 #[allow(dead_code)]
 pub fn main() {
-    let path = "/workspaces/advent-of-code-2025-rust/day11-example.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day11-example.txt";
     // let path = "/workspaces/advent-of-code-2025-rust/day11-example2.txt";
-    // let path = "/workspaces/advent-of-code-2025-rust/day11-input.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day11-input.txt";
 
     // Build a list of the outgoing connections from each device
     let connection: HashMap<String, Vec<String>> = read_file_lines(path).unwrap().iter().map(|l| get_device_details(l)).collect();
@@ -62,7 +62,7 @@ pub fn main() {
         let links = &connection.get(&device);
         let score = match links {
             Some(l) => { l.iter().map(|i| scores[i]).sum() }
-            None => 1u32,
+            None => 1u64,
         };
         scores.insert(device, score);
     }
