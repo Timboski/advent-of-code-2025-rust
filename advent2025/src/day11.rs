@@ -9,10 +9,12 @@ pub fn main() {
     // let path = "/workspaces/advent-of-code-2025-rust/day11-example2.txt";
     let path = "/workspaces/advent-of-code-2025-rust/day11-input.txt";
 
-    let num_paths = part_2(path);
+    let num_paths = part_1(path);
+    let num_valid_paths = part_2(path);
 
     println!();
     println!("Paths found: {}", num_paths);
+    println!("Valid paths found: {}", num_valid_paths);
 
     return;
 }
