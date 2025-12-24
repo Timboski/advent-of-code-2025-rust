@@ -8,7 +8,7 @@ pub fn main() {
 
     println!("Part 1");
     let total1 = part1(path);
-    
+
     println!();
     println!("Part 2");
     let total2 = part2(path);
@@ -77,7 +77,7 @@ fn decode_puzzle_input(path: &str) -> Vec<(char, Vec<String>)> {
 }
 
 /// Prompt: in rust take a vector of string and split them at points where all string are a space character. Leave the remaining whitespace in the sub strings. output should be a vector of vector of string
-/// 
+///
 /// Split a group of strings simultaneously at character positions
 /// where *every* string has a space (' ') character.
 /// The split removes those shared space columns, but keeps all other whitespace.
@@ -113,9 +113,7 @@ pub fn split_on_all_space(input: &[String]) -> Vec<Vec<String>> {
     // Identify split positions: char index `i` where every string has ' ' at that char.
     let mut split_positions_char: Vec<usize> = Vec::new();
     for i in 0..min_char_len {
-        let all_space = per_str_char_indices
-            .iter()
-            .all(|v| v[i].1 == ' ');
+        let all_space = per_str_char_indices.iter().all(|v| v[i].1 == ' ');
         if all_space {
             split_positions_char.push(i);
         }
@@ -179,17 +177,18 @@ pub fn split_on_all_space(input: &[String]) -> Vec<Vec<String>> {
     segments
 }
 
-
 fn solver(problem: (char, Vec<String>)) -> u64 {
-    let mut answer = match problem.0 {            
-            '*' => 1,
-            '+' => 0,
-            _ => panic!(),
+    let mut answer = match problem.0 {
+        '*' => 1,
+        '+' => 0,
+        _ => panic!(),
     };
     for arg_idx in 0..problem.1.len() {
         let argument: u64 = (problem.1[arg_idx]).trim().parse().unwrap();
-        if arg_idx > 0 {print!("{}",problem.0)}
-        print!("{}",argument);
+        if arg_idx > 0 {
+            print!("{}", problem.0)
+        }
+        print!("{}", argument);
         answer = match problem.0 {
             '*' => answer * argument,
             '+' => answer + argument,
@@ -201,15 +200,10 @@ fn solver(problem: (char, Vec<String>)) -> u64 {
     answer
 }
 
-
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day6-example.txt", 4277556)]
 #[case("/workspaces/advent-of-code-2025-rust/day6-input.txt", 5346286649122)]
-fn test_part1_answers(
-    #[case] path: &str,
-    #[case] expected_total: u64
-)
-{
+fn test_part1_answers(#[case] path: &str, #[case] expected_total: u64) {
     // Act
     let total = part1(path);
 
@@ -220,11 +214,7 @@ fn test_part1_answers(
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day6-example.txt", 3263827)]
 #[case("/workspaces/advent-of-code-2025-rust/day6-input.txt", 10389131401929)]
-fn test_part2_answers(
-    #[case] path: &str,
-    #[case] expected_total: u64
-)
-{
+fn test_part2_answers(#[case] path: &str, #[case] expected_total: u64) {
     // Act
     let total = part2(path);
 

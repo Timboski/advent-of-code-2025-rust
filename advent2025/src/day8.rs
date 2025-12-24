@@ -7,7 +7,7 @@ pub fn main() {
     // let max_number_of_connections= 10;
 
     let path = "/workspaces/advent-of-code-2025-rust/day8-input.txt";
-    let max_number_of_connections= 1000;
+    let max_number_of_connections = 1000;
 
     let (size, distance) = find_connections(path, max_number_of_connections);
 
@@ -25,30 +25,39 @@ fn find_connections(path: &str, max_number_of_connections: usize) -> (usize, u12
 
     // Find all possible connections
     let mut jbs = Vec::new();
-    for (box_index, b) in boxes.iter().enumerate() {        
-        for (index, distance) in boxes.iter()
+    for (box_index, b) in boxes.iter().enumerate() {
+        for (index, distance) in boxes
+            .iter()
             .enumerate()
             .filter(|(_, point)| *point != b)
             .map(|(index, point)| (index, b.distance_squared(point)))
         {
-            jbs.push(PotentialConnection {start: box_index, end: index, distance_squared: distance});
+            jbs.push(PotentialConnection {
+                start: box_index,
+                end: index,
+                distance_squared: distance,
+            });
         }
     }
 
     // Sort connections by distance
     jbs.sort_by_key(|k| k.distance_squared);
     println!("Potential connections: {}", jbs.len());
-    for jb in jbs.iter().take(20) {println!("{:?} {:?} {:?}",jb, boxes[jb.start], boxes[jb.end])}
+    for jb in jbs.iter().take(20) {
+        println!("{:?} {:?} {:?}", jb, boxes[jb.start], boxes[jb.end])
+    }
 
     // Make groups
-    let mut size_of_top_three_goups= 0;
-    let mut distance_to_socket= 0;
+    let mut size_of_top_three_goups = 0;
+    let mut distance_to_socket = 0;
     let mut connections: Vec<Connection> = Vec::new();
     let mut groups: Vec<Vec<usize>> = Vec::new();
     for jb in &jbs {
         println!("Num connections made: {}", connections.len());
-        for (index, group) in groups.iter().enumerate() {println!("{}: {:?}", index, group)};
-        if connections.len() == max_number_of_connections && size_of_top_three_goups == 0{ 
+        for (index, group) in groups.iter().enumerate() {
+            println!("{}: {:?}", index, group)
+        }
+        if connections.len() == max_number_of_connections && size_of_top_three_goups == 0 {
             // We are at the limit - compute the Part 1 result
             print!("PART1 COMPLETE");
             groups.sort_by_key(|g| g.len());
@@ -56,20 +65,31 @@ fn find_connections(path: &str, max_number_of_connections: usize) -> (usize, u12
             size_of_top_three_goups = groups.iter().take(3).map(|g| g.len()).product();
             println!(": Size = {}", size_of_top_three_goups);
             println!();
-         }
-        if groups.len() == 1 && groups[0].len() == boxes.len() {break}
+        }
+        if groups.len() == 1 && groups[0].len() == boxes.len() {
+            break;
+        }
         println!();
-        if connections.iter().any(|c| c.is_same(&jb)) {             
+        if connections.iter().any(|c| c.is_same(&jb)) {
             println!("Connection {}-{} already made", jb.start, jb.end);
             continue;
         }
 
         let start_group = find_group(&groups, jb.start);
         let end_group = find_group(&groups, jb.end);
-        println!("Connection {}-{}: {:?} {:?} : ", jb.start, jb.end, start_group, end_group);
+        println!(
+            "Connection {}-{}: {:?} {:?} : ",
+            jb.start, jb.end, start_group, end_group
+        );
         distance_to_socket = boxes[jb.start].x as u128 * boxes[jb.end].x as u128;
-        println!("X-Distance {:?}-{:?}: {}", boxes[jb.start], boxes[jb.end], distance_to_socket);
-        connections.push(Connection { start: jb.start, end: jb.end });
+        println!(
+            "X-Distance {:?}-{:?}: {}",
+            boxes[jb.start], boxes[jb.end], distance_to_socket
+        );
+        connections.push(Connection {
+            start: jb.start,
+            end: jb.end,
+        });
 
         match start_group {
             None => match end_group {
@@ -81,7 +101,7 @@ fn find_connections(path: &str, max_number_of_connections: usize) -> (usize, u12
                     println!("Add start to group {}", end);
                     groups[end].push(jb.start);
                 }
-            }
+            },
             Some(start) => match end_group {
                 None => {
                     println!("Add end to group {}", start);
@@ -99,7 +119,7 @@ fn find_connections(path: &str, max_number_of_connections: usize) -> (usize, u12
                         groups.remove(end);
                     }
                 }
-            }
+            },
         }
     }
 
@@ -130,15 +150,19 @@ struct Point3D {
 
 impl Point3D {
     fn new(line: &String) -> Self {
-        let coordinates: Vec<u32> = line.split(',')
-            .map(|c| c.parse().unwrap())
-            .collect();
-        Point3D { x: coordinates[0], y: coordinates[1], z: coordinates[2] }
+        let coordinates: Vec<u32> = line.split(',').map(|c| c.parse().unwrap()).collect();
+        Point3D {
+            x: coordinates[0],
+            y: coordinates[1],
+            z: coordinates[2],
+        }
     }
 
     /// No need to do the square root as we are just using for comparison
     pub fn distance_squared(&self, other: &Point3D) -> u64 {
-        get_squared_distance(self.x, other.x) + get_squared_distance(self.y, other.y) + get_squared_distance(self.z, other.z)
+        get_squared_distance(self.x, other.x)
+            + get_squared_distance(self.y, other.y)
+            + get_squared_distance(self.z, other.z)
     }
 }
 
@@ -157,7 +181,7 @@ struct PotentialConnection {
 #[derive(Debug)]
 struct Connection {
     start: usize,
-    end: usize
+    end: usize,
 }
 
 impl Connection {
@@ -174,17 +198,20 @@ impl Connection {
     }
 }
 
-
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day8-example.txt", 10, 40, 25272)]
-#[case("/workspaces/advent-of-code-2025-rust/day8-input.txt", 1000, 57564, 133296744)]
+#[case(
+    "/workspaces/advent-of-code-2025-rust/day8-input.txt",
+    1000,
+    57564,
+    133296744
+)]
 fn test_answers(
     #[case] path: &str,
     #[case] limit: usize,
     #[case] expected_size: usize,
-    #[case] expected_last_connection: u128
-)
-{
+    #[case] expected_last_connection: u128,
+) {
     // Act
     let (size, last_connection) = find_connections(path, limit);
 

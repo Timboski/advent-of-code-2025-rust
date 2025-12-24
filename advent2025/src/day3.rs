@@ -1,6 +1,5 @@
-use rstest::rstest;
 use crate::utils::read_file_lines;
-
+use rstest::rstest;
 
 #[allow(dead_code)]
 pub fn main() {
@@ -21,11 +20,9 @@ fn find_total_joltage(path: &str, number_of_cells: usize) -> u128 {
 }
 
 fn compute_joltage_of_battery_bank(battery_bank: String, number_of_cells: usize) -> u128 {
-    let input: Vec<u8> = battery_bank.chars()
-        .map(|ch| ch
-        .to_digit(10)
-        .map(|d| d as u8)
-        .unwrap())
+    let input: Vec<u8> = battery_bank
+        .chars()
+        .map(|ch| ch.to_digit(10).map(|d| d as u8).unwrap())
         .collect();
 
     print!("Joltage of {:?}", input);
@@ -36,11 +33,10 @@ fn compute_joltage_of_battery_bank(battery_bank: String, number_of_cells: usize)
         joltage += result.0 as u128 * 10u128.pow(i as u32);
         battery_bank = result.1;
     }
-    
+
     println!(" is {}", joltage);
     joltage
 }
-
 
 /// Finds the maximum within the first `len - x` elements and returns:
 /// - the max value (`i8`)
@@ -83,7 +79,6 @@ fn max_and_tail_after_first_max_ignore_last(nums: &[u8], x: usize) -> Option<(u8
     Some((max_val, tail))
 }
 
-
 #[test]
 fn test_max_and_tail_after_first_max_ignore_last() {
     // Assertions covering behavior
@@ -123,11 +118,7 @@ fn test_max_and_tail_after_first_max_ignore_last() {
 #[case("811111111111119", 89)]
 #[case("234234234234278", 78)]
 #[case("818181911112111", 92)]
-fn test_examples_for_part_1(
-    #[case] battery_bank: &str,
-    #[case] expected_joltage: u128
-)
-{
+fn test_examples_for_part_1(#[case] battery_bank: &str, #[case] expected_joltage: u128) {
     // Act
     let joltage = compute_joltage_of_battery_bank(battery_bank.to_string(), 2);
 
@@ -138,11 +129,7 @@ fn test_examples_for_part_1(
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day3-example.txt", 357)]
 #[case("/workspaces/advent-of-code-2025-rust/day3-input.txt", 17376)]
-fn test_part1_answers(
-    #[case] path: &str,
-    #[case] expected_joltage: u128
-)
-{
+fn test_part1_answers(#[case] path: &str, #[case] expected_joltage: u128) {
     // Act
     let joltage = find_total_joltage(path, 2);
 
@@ -153,11 +140,7 @@ fn test_part1_answers(
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day3-example.txt", 3121910778619)]
 #[case("/workspaces/advent-of-code-2025-rust/day3-input.txt", 172119830406258)]
-fn test_part2_answers(
-    #[case] path: &str,
-    #[case] expected_joltage: u128
-)
-{
+fn test_part2_answers(#[case] path: &str, #[case] expected_joltage: u128) {
     // Act
     let joltage = find_total_joltage(path, 12);
 

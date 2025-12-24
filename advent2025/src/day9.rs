@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use crate::utils::read_file_lines;
 use rstest::rstest;
+use std::collections::HashMap;
 
 #[allow(dead_code)]
 pub fn main() {
@@ -24,8 +24,9 @@ fn compute_rectangles(points: Vec<(u32, u32)>) -> Vec<(u64, u32, u32, u32, u32)>
     let mut areas = Vec::new();
     for point1 in &points {
         for point2 in &points {
-            let area = compute_side_length(point1.0, point2.0) * compute_side_length(point1.1, point2.1);
-            areas.push((area,point1.0, point2.0, point1.1, point2.1));
+            let area =
+                compute_side_length(point1.0, point2.0) * compute_side_length(point1.1, point2.1);
+            areas.push((area, point1.0, point2.0, point1.1, point2.1));
         }
     }
 
@@ -37,13 +38,12 @@ fn compute_rectangles(points: Vec<(u32, u32)>) -> Vec<(u64, u32, u32, u32, u32)>
 
 fn read_points_from_file(path: &str) -> Vec<(u32, u32)> {
     let lines = read_file_lines(path).unwrap();
-    let points: Vec<(u32, u32)> = lines.iter()
-        .map(
-            |l| {
-                let coords = l.split_once(",").unwrap();
-                (coords.0.parse().unwrap(), coords.1.parse().unwrap())
-            }                
-        )
+    let points: Vec<(u32, u32)> = lines
+        .iter()
+        .map(|l| {
+            let coords = l.split_once(",").unwrap();
+            (coords.0.parse().unwrap(), coords.1.parse().unwrap())
+        })
         .collect();
     points
 }
@@ -59,7 +59,8 @@ fn part_2(path: &str) -> u64 {
     let mut x_values: Vec<u32> = points.iter().map(|p| p.0).collect();
     x_values.sort();
     x_values.dedup();
-    let x_map: HashMap<&u32, usize> = x_values.iter()
+    let x_map: HashMap<&u32, usize> = x_values
+        .iter()
         .enumerate()
         .map(|(i, val)| (val, i))
         .collect();
@@ -67,7 +68,8 @@ fn part_2(path: &str) -> u64 {
     let mut y_values: Vec<u32> = points.iter().map(|p| p.1).collect();
     y_values.sort();
     y_values.dedup();
-    let y_map: HashMap<&u32, usize> = y_values.iter()
+    let y_map: HashMap<&u32, usize> = y_values
+        .iter()
         .enumerate()
         .map(|(i, val)| (val, i))
         .collect();
@@ -84,7 +86,9 @@ fn part_2(path: &str) -> u64 {
         // Draw in the greens
         for x in get_range(prev_x, point_x) {
             for y in get_range(prev_y, point_y) {
-                if matrix[y][x] == '.' { matrix[y][x] = 'X';}
+                if matrix[y][x] == '.' {
+                    matrix[y][x] = 'X';
+                }
             }
         }
 
@@ -125,25 +129,34 @@ fn part_2(path: &str) -> u64 {
         // Test each of the lines
         // Assumption: If all of the lines are inside the shape, the whole rectangle must be inside the shape.
         // Note: This holds as long as the shape contains no holes (which it doesn't)
-        if is_line_inside_shape(x1, y1, x1, y2, &matrix) && 
-            is_line_inside_shape(x2, y1, x2, y2, &matrix) && 
-            is_line_inside_shape(x1, y1, x2, y1, &matrix) && 
-            is_line_inside_shape(x1, y2, x2, y2, &matrix) { 
+        if is_line_inside_shape(x1, y1, x1, y2, &matrix)
+            && is_line_inside_shape(x2, y1, x2, y2, &matrix)
+            && is_line_inside_shape(x1, y1, x2, y1, &matrix)
+            && is_line_inside_shape(x1, y2, x2, y2, &matrix)
+        {
             // We have found the result.
-            return rectangle.0
+            return rectangle.0;
         }
     }
 
     0
 }
 
-fn is_line_inside_shape(x1: usize, y1: usize, x2: usize, y2: usize, matrix: &Vec<Vec<char>>) -> bool {
-    for x in get_range(x1,x2) {
+fn is_line_inside_shape(
+    x1: usize,
+    y1: usize,
+    x2: usize,
+    y2: usize,
+    matrix: &Vec<Vec<char>>,
+) -> bool {
+    for x in get_range(x1, x2) {
         for y in get_range(y1, y2) {
-            if matrix[y][x] == '.' { return false; }
+            if matrix[y][x] == '.' {
+                return false;
+            }
         }
     }
-    
+
     true
 }
 
@@ -151,28 +164,33 @@ fn fill_inside_tiles(row: &mut Vec<char>) {
     let mut inside = false;
     for tile in row.iter_mut() {
         match *tile {
-            '.' => if inside { *tile = 'x'; }
-            'X' => { inside = !inside; }
-            '#'| 'x' => { break; }
-            _ => panic!()
+            '.' => {
+                if inside {
+                    *tile = 'x';
+                }
+            }
+            'X' => {
+                inside = !inside;
+            }
+            '#' | 'x' => {
+                break;
+            }
+            _ => panic!(),
         }
     }
 }
 
 fn get_range(previous_point: usize, point: usize) -> std::ops::RangeInclusive<usize> {
-    if previous_point < point { return previous_point..=point; }
+    if previous_point < point {
+        return previous_point..=point;
+    }
     point..=previous_point
 }
-
 
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day9-example.txt", 50)]
 #[case("/workspaces/advent-of-code-2025-rust/day9-input.txt", 4748985168)]
-fn test_part1_answers(
-    #[case] path: &str,
-    #[case] expected_area: u64
-)
-{
+fn test_part1_answers(#[case] path: &str, #[case] expected_area: u64) {
     // Act
     let max_area = part_1(path);
 
@@ -183,11 +201,7 @@ fn test_part1_answers(
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day9-example.txt", 24)]
 #[case("/workspaces/advent-of-code-2025-rust/day9-input.txt", 1550760868)]
-fn test_part2_answers(
-    #[case] path: &str,
-    #[case] expected_area: u64
-)
-{
+fn test_part2_answers(#[case] path: &str, #[case] expected_area: u64) {
     // Act
     let max_area = part_2(path);
 

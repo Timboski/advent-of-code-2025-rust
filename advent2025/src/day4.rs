@@ -1,7 +1,6 @@
 // Prompt:
 // in rust read a matrix from a file. Each line contains . for an empty space and @ for a full space. Find the number of full spaces which have fewer than 4 adjacent spaces filled. count adjacent as the 8 surrounding spaces.
 
-
 use rstest::rstest;
 use std::fs;
 use std::process;
@@ -30,11 +29,13 @@ fn part2(path: &str) -> usize {
     let mut grid = load_grid_from_file(path);
 
     let mut count = 0;
-    loop {            
+    loop {
         let frame = count_and_clear_fewer_than_4_neighbors(&grid);
         count += frame.0;
         grid = frame.1;
-        if frame.0 == 0 { break; }
+        if frame.0 == 0 {
+            break;
+        }
     }
 
     count
@@ -82,7 +83,8 @@ fn parse_grid(input: &str) -> Result<Vec<Vec<bool>>, String> {
                 '@' => Ok(true),
                 other => Err(format!(
                     "Invalid character '{}' at line {}. Only '.' and '@' are allowed.",
-                    other, line_idx + 1
+                    other,
+                    line_idx + 1
                 )),
             })
             .collect();
@@ -118,11 +120,11 @@ fn parse_grid(input: &str) -> Result<Vec<Vec<bool>>, String> {
     Ok(grid)
 }
 
-
 /// Count how many filled cells have fewer than 4 filled neighbors (8-directional),
 /// and return a new grid where those counted cells are set to false.
 ///
 /// Returns: (count, new_grid)
+#[rustfmt::skip] // Allow the directions to be displayed pictorially
 pub fn count_and_clear_fewer_than_4_neighbors(grid: &[Vec<bool>]) -> (usize, Vec<Vec<bool>>) {
     // Handle empty cases safely
     if grid.is_empty() || grid[0].is_empty() {
@@ -171,7 +173,6 @@ pub fn count_and_clear_fewer_than_4_neighbors(grid: &[Vec<bool>]) -> (usize, Vec
     (count, new_grid)
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -217,11 +218,7 @@ mod tests {
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day4-example.txt", 13)]
 #[case("/workspaces/advent-of-code-2025-rust/day4-input.txt", 1489)]
-fn test_part1_answers(
-    #[case] path: &str,
-    #[case] expected_rolls: usize
-)
-{
+fn test_part1_answers(#[case] path: &str, #[case] expected_rolls: usize) {
     // Act
     let rolls = part1(path);
 
@@ -232,11 +229,7 @@ fn test_part1_answers(
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day4-example.txt", 43)]
 #[case("/workspaces/advent-of-code-2025-rust/day4-input.txt", 8890)]
-fn test_part2_answers(
-    #[case] path: &str,
-    #[case] expected_rolls: usize
-)
-{
+fn test_part2_answers(#[case] path: &str, #[case] expected_rolls: usize) {
     // Act
     let rolls = part2(path);
 

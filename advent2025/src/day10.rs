@@ -1,7 +1,7 @@
-use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashSet};
 use crate::utils::read_file_lines;
 use rstest::rstest;
+use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashSet};
 
 #[allow(dead_code)]
 pub fn main() {
@@ -54,12 +54,12 @@ fn part2(path: &str) -> u32 {
 fn find_button_actions(line_fragment_2: &str) -> Vec<Vec<usize>> {
     line_fragment_2
         .split_whitespace()
-        .map(|s| 
+        .map(|s| {
             s.trim_matches(|c| c == '(' || c == ')')
-            .split(",")
-            .map(|s| s.parse::<usize>().unwrap())
-            .collect()
-        )
+                .split(",")
+                .map(|s| s.parse::<usize>().unwrap())
+                .collect()
+        })
         .collect()
 }
 
@@ -71,7 +71,9 @@ fn find_fewest_button_presses(initial_state: Box<dyn State>) -> u32 {
         // Get the universe with the lowsest number of button pushes so far.
         let ByKey(universe) = match universes.pop() {
             Some(u) => u,
-            None => { break; },
+            None => {
+                break;
+            }
         };
         // println!("\rUniverses: {} Current Universe: {}", universes.len(), universe.display());
 
@@ -82,7 +84,9 @@ fn find_fewest_button_presses(initial_state: Box<dyn State>) -> u32 {
                 return child.button_pushes();
             };
 
-            if child.is_valid_state() { universes.push(ByKey(child)) }
+            if child.is_valid_state() {
+                universes.push(ByKey(child))
+            }
         }
     }
 
@@ -91,11 +95,11 @@ fn find_fewest_button_presses(initial_state: Box<dyn State>) -> u32 {
 
 trait State {
     fn next_states(&self) -> Vec<Box<dyn State>>;
-    fn is_valid_state(&self)->bool;
-    fn priority(&self)->i32;
-    fn button_pushes(&self)->u32;
-    fn is_desired_state(&self)->bool;
-    fn display(&self)->String;
+    fn is_valid_state(&self) -> bool;
+    fn priority(&self) -> i32;
+    fn button_pushes(&self) -> u32;
+    fn is_desired_state(&self) -> bool;
+    fn display(&self) -> String;
 }
 
 struct StatePart1 {
@@ -103,7 +107,7 @@ struct StatePart1 {
     state: u16,
     desired_state: u16,
     masks: Vec<u16>,
-    seen_states: HashSet<u16>
+    seen_states: HashSet<u16>,
 }
 
 impl StatePart1 {
@@ -118,7 +122,7 @@ impl StatePart1 {
             .map(|c| match c {
                 '.' => 0u16,
                 '#' => 1u16,
-                _ => panic!()
+                _ => panic!(),
             })
             .enumerate()
             .map(|(i, v)| v << i)
@@ -128,17 +132,19 @@ impl StatePart1 {
         // Store the button pushes as bit masks
         let button_actions = maks_def
             .split_whitespace()
-            .map(|s| 
+            .map(|s| {
                 s.trim_matches(|c| c == '(' || c == ')')
-                .split(",")
-                .map(|s| s.parse::<usize>().unwrap())
-                .map(|i| 1 << i)
-                .sum()
-            )
+                    .split(",")
+                    .map(|s| s.parse::<usize>().unwrap())
+                    .map(|i| 1 << i)
+                    .sum()
+            })
             .collect();
         println!("Button Actions: {:?}", button_actions);
         print!("BitMasks:");
-        for m in &button_actions { print!(" {:b}", m )}
+        for m in &button_actions {
+            print!(" {:b}", m)
+        }
         println!();
 
         println!("Joltages (unused): {:?}", joltages);
@@ -148,7 +154,7 @@ impl StatePart1 {
             state: 0,
             desired_state: desired_state,
             masks: button_actions,
-            seen_states: HashSet::new()
+            seen_states: HashSet::new(),
         }
     }
 
@@ -162,34 +168,47 @@ impl StatePart1 {
             state: state,
             desired_state: parent.desired_state,
             masks: parent.masks.clone(), // TODO: Point to one copy of this
-            seen_states: seen_states,  // TODO: Point to one copy of this
+            seen_states: seen_states,    // TODO: Point to one copy of this
         }
     }
 }
 
 impl State for StatePart1 {
-    fn is_valid_state(&self)->bool { true }
-    
-    fn next_states(&self)->Vec<Box<dyn State>> {        
-        self.masks.iter()
+    fn is_valid_state(&self) -> bool {
+        true
+    }
+
+    fn next_states(&self) -> Vec<Box<dyn State>> {
+        self.masks
+            .iter()
             .map(|mask| StatePart1::from_parent(self, mask))
             .filter(|value| !self.seen_states.contains(&value.state))
             .map(|state| Box::new(state) as Box<dyn State>)
             .collect()
     }
-    
-    fn priority(&self)->i32 { -(self.button_pushes as i32) }
-    fn button_pushes(&self)->u32 { self.button_pushes }
-    fn is_desired_state(&self)->bool { self.state == self.desired_state }
-    fn display(&self)->String { format!("{}:{:0b} Pushes={}", self.state, self.state, self.button_pushes) }
-}
 
+    fn priority(&self) -> i32 {
+        -(self.button_pushes as i32)
+    }
+    fn button_pushes(&self) -> u32 {
+        self.button_pushes
+    }
+    fn is_desired_state(&self) -> bool {
+        self.state == self.desired_state
+    }
+    fn display(&self) -> String {
+        format!(
+            "{}:{:0b} Pushes={}",
+            self.state, self.state, self.button_pushes
+        )
+    }
+}
 
 struct StatePart2 {
     button_pushes: u32,
     state: Vec<u16>,
     desired_state: Vec<u16>,
-    masks: Vec<Vec<usize>>
+    masks: Vec<Vec<usize>>,
 }
 
 impl StatePart2 {
@@ -199,47 +218,65 @@ impl StatePart2 {
         println!("Lights (unused): {:?}", lights_def);
         let button_actions = find_button_actions(maks_def);
         println!("Steps {:?}", button_actions);
-        let joltages: Vec<u16> = joltage_def.trim_end_matches("}").split(",").map(|s| s.parse().unwrap()).collect();
+        let joltages: Vec<u16> = joltage_def
+            .trim_end_matches("}")
+            .split(",")
+            .map(|s| s.parse().unwrap())
+            .collect();
         println!("Joltages {:?}", joltages);
 
         Self {
             button_pushes: 0,
             state: vec![0u16; joltages.len()],
             desired_state: joltages,
-            masks: button_actions
+            masks: button_actions,
         }
     }
 
     fn from_parent(parent: &StatePart2, mask: &Vec<usize>) -> Self {
         let mut new_state = parent.state.clone();
-        for button in mask { new_state[*button] += 1 }
+        for button in mask {
+            new_state[*button] += 1
+        }
 
         Self {
             button_pushes: parent.button_pushes + 1,
             state: new_state,
             desired_state: parent.desired_state.clone(), // TODO: Point to one copy of this
-            masks: parent.masks.clone() // TODO: Point to one copy of this
+            masks: parent.masks.clone(),                 // TODO: Point to one copy of this
         }
     }
 }
 
 impl State for StatePart2 {
-    fn is_valid_state(&self)->bool { 
-        !self.state.iter().zip(&self.desired_state).any(|(n, d)| n > d)
-     }
-    
-    fn next_states(&self)->Vec<Box<dyn State>> {
-        self.masks.iter()
+    fn is_valid_state(&self) -> bool {
+        !self
+            .state
+            .iter()
+            .zip(&self.desired_state)
+            .any(|(n, d)| n > d)
+    }
+
+    fn next_states(&self) -> Vec<Box<dyn State>> {
+        self.masks
+            .iter()
             .map(|mask| Box::new(StatePart2::from_parent(self, mask)) as Box<dyn State>)
             .collect()
     }
-    
-    fn priority(&self)->i32 { self.state.iter().map(|u| *u as i32).sum() }
-    fn button_pushes(&self)->u32 { self.button_pushes }
-    fn is_desired_state(&self)->bool { self.state == self.desired_state }
-    fn display(&self)->String { format!("{:?} Pushes={}", self.state, self.button_pushes) }
-}
 
+    fn priority(&self) -> i32 {
+        self.state.iter().map(|u| *u as i32).sum()
+    }
+    fn button_pushes(&self) -> u32 {
+        self.button_pushes
+    }
+    fn is_desired_state(&self) -> bool {
+        self.state == self.desired_state
+    }
+    fn display(&self) -> String {
+        format!("{:?} Pushes={}", self.state, self.button_pushes)
+    }
+}
 
 // Implement ordering so BinaryHeap compares only `priority`.
 
@@ -263,15 +300,10 @@ impl PartialOrd for ByKey {
     }
 }
 
-
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day10-example.txt", 7)]
 #[case("/workspaces/advent-of-code-2025-rust/day10-input.txt", 461)]
-fn test_part1_answers(
-    #[case] path: &str,
-    #[case] expected_presses: u32
-)
-{
+fn test_part1_answers(#[case] path: &str, #[case] expected_presses: u32) {
     // Act
     let presses = part1(path);
 
@@ -282,11 +314,7 @@ fn test_part1_answers(
 #[rstest]
 #[case("/workspaces/advent-of-code-2025-rust/day10-example.txt", 33)]
 //#[case("/workspaces/advent-of-code-2025-rust/day10-input.txt", ??)]
-fn test_part2_answers(
-    #[case] path: &str,
-    #[case] expected_presses: u32
-)
-{
+fn test_part2_answers(#[case] path: &str, #[case] expected_presses: u32) {
     // Act
     let presses = part2(path);
 

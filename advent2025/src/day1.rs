@@ -1,6 +1,5 @@
 use crate::utils::read_file_lines;
 
-
 #[allow(dead_code)]
 pub fn main() {
     let path = "/workspaces/advent-of-code-2025-rust/day1-example.txt";
@@ -15,7 +14,6 @@ pub fn main() {
     println!("Number of zero values: {}", dial.zero_count);
     println!("Number of zero crossings: {}", dial.zero_crossings);
 }
-
 
 pub struct Dial {
     pub position: i32,
