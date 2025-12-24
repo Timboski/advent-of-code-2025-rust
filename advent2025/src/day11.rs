@@ -3,9 +3,9 @@ use std::collections::HashMap;
 
 #[allow(dead_code)]
 pub fn main() {
-    // let path = "/workspaces/advent-of-code-2025-rust/day11-example.txt";
+    let path = "/workspaces/advent-of-code-2025-rust/day11-example.txt";
     // let path = "/workspaces/advent-of-code-2025-rust/day11-example2.txt";
-    let path = "/workspaces/advent-of-code-2025-rust/day11-input.txt";
+    // let path = "/workspaces/advent-of-code-2025-rust/day11-input.txt";
 
     // Build a list of the outgoing connections from each device
     let connection: HashMap<String, Vec<String>> = read_file_lines(path).unwrap().iter().map(|l| get_device_details(l)).collect();
@@ -48,36 +48,30 @@ pub fn main() {
             None => { println!(" - end point")}
         }
     }
+    assert!(indegree.len() == 0); // Check all elements used up
 
-    println!("Remaining elements: {:?}", indegree);
+    // Work backwards through the list assigning number of routes to the end for each device.
+    // Number of routes is the sum of the number of routes on each of its connections.
+    order.reverse();
+    println!("Topological order of devices (reversed) {:?}", order);
 
-
-    return;
-
-
-    let mut paths_found = 0;
-    let mut valid_paths_found = 0;
-    let mut tracers = vec![("svr".to_string(), false, false)];
-    loop {
-        let (tracer, dac_seen, fft_seen) = match tracers.pop() {
-            Some(t) => t,
-            None => { break; },
+    let mut scores = HashMap::new();
+    for device in order {
+        println!("Scoring {}", device);
+        let mut score = 0;
+        let links = &connection.get(&device);
+        let score = match links {
+            Some(l) => { l.iter().map(|i| scores[i]).sum() }
+            None => 1u32,
         };
-
-        for connection in connection.get(&tracer).unwrap() {
-            if connection == "out" {
-                paths_found += 1;
-                if dac_seen && fft_seen { valid_paths_found += 1 }
-            } else {
-                let now_dac_seen = dac_seen || connection == "dac";
-                let now_fft_seen = fft_seen || connection == "fft";
-                tracers.push((connection.clone(), now_dac_seen, now_fft_seen));
-            }
-        }
+        scores.insert(device, score);
     }
 
-    println!("Paths found: {}", paths_found);
-    println!("Valid Paths found: {}", valid_paths_found);
+    println!("Scores: {:?}", scores);    
+    println!();
+    println!("Paths found: {}", scores["you"]);
+
+    return;
 }
 
 fn get_device_details(devce_definition: &str) -> (String, Vec<String>) {
